@@ -175,7 +175,7 @@ Detalhes técnicos de cada versão no [CHANGELOG](CHANGELOG.md).
 
 ## 📥 Download
 
-1. Vá em [**Releases**](../../releases) e baixe `Launcher Alt - PokeIdle.exe`.
+1. Vá em [**Releases**](../../releases/latest) e, em *Assets*, baixe o `.exe` (o GitHub pode mostrar o nome como `Launcher.Alt.-.PokeIdle.exe`; é o mesmo arquivo).
 2. Dê dois cliques. Não precisa instalar — é um executável portátil.
 3. Faça login em cada card com **e-mail/usuário e senha** do Pokéidle.
 
@@ -184,7 +184,7 @@ Detalhes técnicos de cada versão no [CHANGELOG](CHANGELOG.md).
 **Conferindo o arquivo:** cada release traz o hash SHA-256 do `.exe`. Para comparar, no PowerShell:
 
 ```powershell
-Get-FileHash ".\Launcher Alt - PokeIdle.exe" -Algorithm SHA256
+Get-FileHash ".\Launcher.Alt.-.PokeIdle.exe" -Algorithm SHA256
 ```
 
 Os executáveis das releases são gerados pelo [GitHub Actions](.github/workflows/release.yml) a partir deste código, então qualquer pessoa pode ver exatamente como foram construídos.
