@@ -1,0 +1,16 @@
+# Dependências e build
+node_modules/
+dist/
+*.log
+
+# Sistema
+Thumbs.db
+desktop.ini
+.DS_Store
+
+# Arquivos locais (não publicar)
+launcher foto.png
+hud launcher.png
+acompanhamento de hunts.png
+PUBLICAR.md
+pix qrcode cnpj.png

@@ -1,0 +1,46 @@
+{
+  "name": "launcher-alt-pokeidle",
+  "version": "1.0.0",
+  "description": "Launcher para rodar a conta principal e até 3 alts do Pokéidle.io em uma única janela — 100% local, open-source.",
+  "author": "Launcher Alt: PokeIdle contributors",
+  "license": "MIT",
+  "private": true,
+  "main": "src/main.js",
+  "keywords": [
+    "pokeidle",
+    "launcher",
+    "multi-account",
+    "electron",
+    "idle-game"
+  ],
+  "scripts": {
+    "start": "electron .",
+    "dist": "electron-builder --win portable"
+  },
+  "devDependencies": {
+    "electron": "^44.5.1",
+    "electron-builder": "^26.15.3"
+  },
+  "build": {
+    "appId": "io.github.launcheralt.pokeidle",
+    "productName": "Launcher Alt - PokeIdle",
+    "executableName": "Launcher Alt - PokeIdle",
+    "icon": "src/assets/icon.ico",
+    "files": [
+      "src/**/*",
+      "package.json"
+    ],
+    "compression": "maximum",
+    "win": {
+      "target": "portable",
+      "icon": "src/assets/icon.ico",
+      "signAndEditExecutable": false
+    },
+    "portable": {
+      "artifactName": "Launcher Alt - PokeIdle.exe"
+    }
+  },
+  "allowScripts": {
+    "electron@44.5.1": true
+  }
+}

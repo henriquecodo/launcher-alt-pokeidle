@@ -1,0 +1,54 @@
+# Gera o executável no GitHub, a partir deste código, para qualquer um poder conferir como ele foi construído.
+# - Em todo push/PR: compila e guarda o .exe como artefato do workflow.
+# - Ao criar uma tag v* (ex.: v1.0.0): publica o .exe e o SHA-256 em uma Release.
+name: Build
+
+on:
+  push:
+    branches: [main]
+    tags: ['v*']
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Instalar dependências
+        run: npm ci
+
+      - name: Gerar executável portátil
+        run: npm run dist
+
+      - name: Calcular SHA-256
+        shell: pwsh
+        run: |
+          $h = (Get-FileHash "dist/Launcher Alt - PokeIdle.exe" -Algorithm SHA256).Hash
+          "$h  Launcher Alt - PokeIdle.exe" | Out-File -Encoding ascii dist/SHA256.txt
+          Get-Content dist/SHA256.txt
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: launcher-alt-pokeidle
+          path: |
+            dist/Launcher Alt - PokeIdle.exe
+            dist/SHA256.txt
+
+      - name: Publicar release
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            dist/Launcher Alt - PokeIdle.exe
+            dist/SHA256.txt
+          generate_release_notes: true

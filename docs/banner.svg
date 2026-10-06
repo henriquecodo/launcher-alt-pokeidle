@@ -1,0 +1,137 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="400" viewBox="0 0 1280 400" role="img" aria-label="Launcher Alt: PokeIdle — sua conta principal e até 3 alts do Pokéidle.io em uma janela só">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#151517"/>
+      <stop offset=".55" stop-color="#1b1626"/>
+      <stop offset="1" stop-color="#2a1a3d"/>
+    </linearGradient>
+    <radialGradient id="glow" cx=".22" cy=".35" r=".5">
+      <stop offset="0" stop-color="#ff453a" stop-opacity=".22"/>
+      <stop offset="1" stop-color="#ff453a" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="glow2" cx=".85" cy=".2" r=".45">
+      <stop offset="0" stop-color="#bf5af2" stop-opacity=".25"/>
+      <stop offset="1" stop-color="#bf5af2" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="red" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ff5a4f"/>
+      <stop offset="1" stop-color="#e0352b"/>
+    </linearGradient>
+    <linearGradient id="win" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#1f1f23"/>
+      <stop offset="1" stop-color="#18181b"/>
+    </linearGradient>
+    <linearGradient id="game" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#3b5d2e"/>
+      <stop offset="1" stop-color="#5b3f2a"/>
+    </linearGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="160%">
+      <feDropShadow dx="0" dy="18" stdDeviation="22" flood-color="#000" flood-opacity=".55"/>
+    </filter>
+  </defs>
+
+  <rect width="1280" height="400" rx="24" fill="url(#bg)"/>
+  <rect width="1280" height="400" rx="24" fill="url(#glow)"/>
+  <rect width="1280" height="400" rx="24" fill="url(#glow2)"/>
+
+  <!-- Pokébola -->
+  <g transform="translate(118 132)">
+    <circle r="54" fill="#f5f5f7"/>
+    <path d="M-54 0a54 54 0 0 1 108 0z" fill="url(#red)"/>
+    <rect x="-54" y="-6" width="108" height="12" fill="#2b2b30"/>
+    <circle r="54" fill="none" stroke="#2b2b30" stroke-width="6"/>
+    <circle r="17" fill="#2b2b30"/>
+    <circle r="10" fill="#f5f5f7"/>
+    <ellipse cx="-24" cy="-30" rx="11" ry="7" fill="#fff" opacity=".55" transform="rotate(-30 -24 -30)"/>
+  </g>
+
+  <!-- Título -->
+  <g font-family="'Segoe UI Variable Display','Segoe UI',-apple-system,'Helvetica Neue',Arial,sans-serif">
+    <text x="196" y="122" font-size="44" font-weight="700" fill="#f5f5f7" letter-spacing="-.8">Launcher Alt<tspan fill="#ffcc33">:</tspan> PokeIdle</text>
+    <text x="198" y="156" font-size="18" fill="#a1a1a6">Sua conta principal e até 3 alts do Pokéidle.io</text>
+    <text x="198" y="180" font-size="18" fill="#a1a1a6">em uma única janela, leve e organizada.</text>
+
+    <!-- Chips -->
+    <g font-size="15" font-weight="600">
+      <g transform="translate(64 226)">
+        <rect width="150" height="40" rx="20" fill="#ffffff10" stroke="#ffffff1f"/>
+        <circle cx="22" cy="20" r="5" fill="#ffcc33"/>
+        <text x="36" y="25" fill="#f5f5f7">Multi-contas</text>
+      </g>
+      <g transform="translate(226 226)">
+        <rect width="150" height="40" rx="20" fill="#ffffff10" stroke="#ffffff1f"/>
+        <circle cx="22" cy="20" r="5" fill="#bf5af2"/>
+        <text x="36" y="25" fill="#f5f5f7">Automações</text>
+      </g>
+      <g transform="translate(388 226)">
+        <rect width="170" height="40" rx="20" fill="#ffffff10" stroke="#ffffff1f"/>
+        <circle cx="22" cy="20" r="5" fill="#0a84ff"/>
+        <text x="36" y="25" fill="#f5f5f7">XP/h ao vivo</text>
+      </g>
+      <g transform="translate(64 278)">
+        <rect width="190" height="40" rx="20" fill="#ffffff10" stroke="#ffffff1f"/>
+        <circle cx="22" cy="20" r="5" fill="#ff9f0a"/>
+        <text x="36" y="25" fill="#f5f5f7">RAM sob controle</text>
+      </g>
+      <g transform="translate(266 278)">
+        <rect width="170" height="40" rx="20" fill="#30d15822" stroke="#30d15866"/>
+        <circle cx="22" cy="20" r="5" fill="#30d158"/>
+        <text x="36" y="25" fill="#f5f5f7">100% local</text>
+      </g>
+      <g transform="translate(448 278)">
+        <rect width="150" height="40" rx="20" fill="#ffffff10" stroke="#ffffff1f"/>
+        <circle cx="22" cy="20" r="5" fill="#f5f5f7"/>
+        <text x="36" y="25" fill="#f5f5f7">Open-source</text>
+      </g>
+    </g>
+    <text x="64" y="362" font-size="13" fill="#6e6e73">Projeto de fã, sem vínculo oficial com o Pokéidle.io, Nintendo, Game Freak ou The Pokémon Company.</text>
+  </g>
+
+  <!-- Janela ilustrativa (2×2 contas) -->
+  <g transform="translate(790 62) scale(.84)" filter="url(#shadow)">
+    <rect width="520" height="300" rx="16" fill="url(#win)" stroke="#ffffff1a"/>
+    <rect width="520" height="34" rx="16" fill="#161618"/>
+    <rect y="18" width="520" height="16" fill="#161618"/>
+    <circle cx="20" cy="17" r="7" fill="#f5f5f7"/>
+    <path d="M13 17a7 7 0 0 1 14 0z" fill="#ff453a"/>
+    <rect x="36" y="12" width="70" height="10" rx="5" fill="#ffffff2a"/>
+    <g transform="translate(124 9)">
+      <rect width="88" height="16" rx="6" fill="#ffffff12"/>
+      <rect x="68" y="2" width="18" height="12" rx="4" fill="#ffcc33"/>
+    </g>
+    <rect x="232" y="12" width="46" height="10" rx="5" fill="#ffffff2a"/>
+    <rect x="288" y="12" width="46" height="10" rx="5" fill="#30d15880"/>
+    <rect x="430" y="12" width="70" height="10" rx="5" fill="#ffffff1c"/>
+
+    <g>
+      <g transform="translate(10 44)">
+        <rect width="245" height="118" rx="10" fill="#1c1c1f" stroke="#ffffff14"/>
+        <circle cx="12" cy="11" r="3.5" fill="#30d158"/><rect x="21" y="7" width="50" height="8" rx="4" fill="#ffffff55"/><rect x="78" y="7" width="34" height="8" rx="4" fill="#ffcc3399"/>
+        <rect x="6" y="22" width="233" height="90" rx="6" fill="url(#game)"/>
+        <rect x="14" y="30" width="34" height="74" rx="4" fill="#00000040"/><rect x="190" y="30" width="42" height="74" rx="4" fill="#00000040"/>
+        <circle cx="118" cy="68" r="10" fill="#ff9f0a" opacity=".9"/><circle cx="140" cy="60" r="6" fill="#ff453a" opacity=".8"/><circle cx="100" cy="80" r="6" fill="#ff453a" opacity=".8"/>
+      </g>
+      <g transform="translate(265 44)">
+        <rect width="245" height="118" rx="10" fill="#1c1c1f" stroke="#ffffff14"/>
+        <circle cx="12" cy="11" r="3.5" fill="#30d158"/><rect x="21" y="7" width="40" height="8" rx="4" fill="#ffffff55"/><rect x="68" y="7" width="30" height="8" rx="4" fill="#ffcc3399"/>
+        <rect x="6" y="22" width="233" height="90" rx="6" fill="#2e5b7a"/>
+        <path d="M60 22c20 30-10 50 30 90h40c-30-40 0-60-25-90z" fill="#d9c189" opacity=".9"/>
+        <rect x="14" y="30" width="34" height="74" rx="4" fill="#00000040"/><rect x="190" y="30" width="42" height="74" rx="4" fill="#00000040"/>
+      </g>
+      <g transform="translate(10 172)">
+        <rect width="245" height="118" rx="10" fill="#1c1c1f" stroke="#ffffff14"/>
+        <circle cx="12" cy="11" r="3.5" fill="#30d158"/><rect x="21" y="7" width="46" height="8" rx="4" fill="#ffffff55"/><rect x="74" y="7" width="30" height="8" rx="4" fill="#ffcc3399"/>
+        <rect x="6" y="22" width="233" height="90" rx="6" fill="#c9a86a"/>
+        <rect x="120" y="50" width="80" height="55" rx="3" fill="#8a6b3e" opacity=".8"/>
+        <rect x="14" y="30" width="34" height="74" rx="4" fill="#00000030"/><rect x="190" y="30" width="42" height="74" rx="4" fill="#00000030"/>
+      </g>
+      <g transform="translate(265 172)">
+        <rect width="245" height="118" rx="10" fill="#1c1c1f" stroke="#ffffff14"/>
+        <circle cx="12" cy="11" r="3.5" fill="#ff9f0a"/><rect x="21" y="7" width="44" height="8" rx="4" fill="#ffffff55"/>
+        <rect x="6" y="22" width="233" height="90" rx="6" fill="#d8e4ee"/>
+        <circle cx="70" cy="60" r="12" fill="#ffffff"/><circle cx="160" cy="80" r="9" fill="#ffffff"/>
+        <rect x="14" y="30" width="34" height="74" rx="4" fill="#00000022"/><rect x="190" y="30" width="42" height="74" rx="4" fill="#00000022"/>
+      </g>
+    </g>
+  </g>
+</svg>

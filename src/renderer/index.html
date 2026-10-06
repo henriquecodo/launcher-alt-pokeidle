@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>Launcher Alt: PokeIdle</title>
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'self' 'unsafe-inline'; script-src 'self'; img-src 'self' data:;">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header id="toolbar">
+  <div class="brand">
+    <img src="../assets/icon.png" alt="">
+    <div class="brand-txt">
+      <span class="brand-t">Launcher Alt</span>
+      <span class="brand-s">PokeIdle</span>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <div class="accounts" data-tip="Quantas contas rodar ao mesmo tempo. Contas desligadas não usam memória.">
+    <i data-icon="users"></i>
+    <span class="accounts-l">Contas</span>
+    <div class="seg" id="seg-count">
+      <button data-n="1">1</button><button data-n="2">2</button><button data-n="3">3</button><button data-n="4">4</button>
+      <span class="seg-thumb"></span>
+    </div>
+  </div>
+
+  <div class="metrics">
+    <div class="metric" data-tip="XP por hora somado de todas as contas (média dos últimos 10 min)">
+      <i data-icon="trend"></i>
+      <div><span class="metric-v" id="st-xph">—</span><span class="metric-l">XP/h total</span></div>
+    </div>
+    <div class="metric" data-tip="XP ganho por todas as contas desde que o launcher abriu">
+      <i data-icon="activity"></i>
+      <div><span class="metric-v ok" id="st-sess">—</span><span class="metric-l">nesta sessão</span></div>
+      <button class="metric-reset" id="btn-reset-sess" data-tip="Zerar a contagem da sessão"><i data-icon="rotateCcw"></i></button>
+    </div>
+    <div class="metric" data-tip="Memória RAM usada pelo launcher inteiro">
+      <i data-icon="cpu"></i>
+      <div><span class="metric-v" id="st-ram">—</span><span class="metric-l">memória</span></div>
+    </div>
+  </div>
+
+  <div class="spacer"></div>
+
+  <nav class="tools-bar">
+    <div class="pop-host">
+      <button class="tbtn" data-pop="pop-autos"><i data-icon="zap"></i><span>Automações</span><i data-icon="chevron" class="chev"></i></button>
+      <div class="pop" id="pop-autos">
+        <div class="pop-title">Automações</div>
+        <div class="pop-sub">Liga ou desliga em todas as contas online</div>
+        <div id="all-autos" class="list"></div>
+      </div>
+    </div>
+    <div class="pop-host">
+      <button class="tbtn" data-pop="pop-nav"><i data-icon="compass"></i><span>Ir para</span><i data-icon="chevron" class="chev"></i></button>
+      <div class="pop" id="pop-nav">
+        <div class="pop-title">Ir para</div>
+        <div class="pop-sub">Abre a aba em todas as contas (ou só na conta em foco)</div>
+        <div class="nav-grid" id="nav-grid"></div>
+      </div>
+    </div>
+    <button class="tbtn" id="btn-reload-all" data-tip="Recarrega todas as contas. Login e automações são mantidos."><i data-icon="reload"></i><span>Atualizar</span></button>
+    <button class="tbtn" id="btn-mute-all" data-tip="Liga/desliga o som de todas as contas"><i data-icon="volume"></i><span>Som</span></button>
+    <button class="tbtn accent" id="btn-guide" data-tip="Abre o guia do jogo no navegador"><i data-icon="book"></i><span>Guia</span></button>
+    <div class="pop-host">
+      <button class="tbtn icon-only" data-pop="pop-cfg" data-tip="Ajustes"><i data-icon="sliders"></i></button>
+      <div class="pop right" id="pop-cfg">
+        <div class="pop-title">Ajustes</div>
+        <div class="list">
+          <label class="item"><div><b>Manter contas logadas</b><small>Ao reabrir o launcher, entra direto sem pedir login</small></div><input type="checkbox" id="cfg-keep" class="switch"></label>
+          <label class="item"><div><b>Bloquear rastreadores</b><small>Corta anúncios/analytics da página: menos RAM. Vale ao reabrir.</small></div><input type="checkbox" id="cfg-track" class="switch"></label>
+          <label class="item"><div><b>Modo otimizado</b><small>Sem animação de golpes e números de dano</small></div><input type="checkbox" id="cfg-otim" class="switch"></label>
+          <label class="item"><div><b>Night Mode</b><small>Tema escuro do jogo</small></div><input type="checkbox" id="cfg-night" class="switch"></label>
+          <label class="item"><div><b>Layout</b><small>Como as contas são organizadas</small></div>
+            <select id="cfg-layout"><option value="auto">Automático</option><option value="row">Lado a lado</option><option value="col">Empilhado</option></select>
+          </label>
+          <label class="item"><div><b>Reiniciar conta pesada</b><small>Recarrega se passar do limite de RAM</small></div>
+            <select id="cfg-ram"><option value="0">Nunca</option><option value="1000">1 GB</option><option value="1500">1,5 GB</option><option value="2000">2 GB</option><option value="3000">3 GB</option></select>
+          </label>
+        </div>
+        <div class="pop-foot">Modo otimizado e Night Mode valem após atualizar as contas.</div>
+      </div>
+    </div>
+  </nav>
+  <div class="wc-space"></div>
+</header>
+
+<main id="grid"></main>
+<div id="toast"></div>
+<div id="guide-host" aria-hidden="true"></div>
+
+<template id="panel-tpl">
+  <section class="card">
+    <div class="card-head">
+      <div class="who">
+        <span class="dot"></span>
+        <input class="name" spellcheck="false" maxlength="20" data-tip="Clique para renomear">
+        <span class="lvl"></span>
+        <span class="state"></span>
+      </div>
+      <div class="stats">
+        <span class="xph" data-tip="XP por hora (últimos 10 min)"><b>—</b> XP/h</span>
+        <span class="sess" data-tip="XP ganho nesta sessão"></span>
+        <span class="ram" data-tip="Memória desta conta"></span>
+      </div>
+      <div class="spacer"></div>
+      <div class="autos"></div>
+      <div class="ctrls">
+        <button class="ibtn hunts" data-tip="Melhores hunts para o seu pokémon (cálculo do Guia)"><i data-icon="trophy"></i></button>
+        <button class="ibtn eco" data-tip="Modo Economia: o jogo não desenha o mapa (bem menos RAM/CPU). A caça continua."><i data-icon="leaf"></i></button>
+        <button class="ibtn mute" data-tip="Som desta conta"><i data-icon="volume"></i></button>
+        <div class="stepper">
+          <button class="zout" data-tip="Diminuir zoom"><i data-icon="minus"></i></button>
+          <button class="zv" data-tip="Zoom automático">—</button>
+          <button class="zin" data-tip="Aumentar zoom"><i data-icon="plus"></i></button>
+        </div>
+        <button class="ibtn home" data-tip="Voltar ao início do jogo"><i data-icon="home"></i></button>
+        <button class="ibtn reload" data-tip="Recarregar esta conta"><i data-icon="reload"></i></button>
+        <button class="ibtn focus" data-tip="Ver só esta conta (as outras continuam farmando)"><i data-icon="expand"></i></button>
+      </div>
+    </div>
+    <div class="card-body"><aside class="sheet"></aside></div>
+  </section>
+</template>
+
+<script src="icons.js"></script>
+<script src="hunts.js"></script>
+<script src="renderer.js"></script>
+</body>
+</html>

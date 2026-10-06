@@ -1,0 +1,105 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="300" viewBox="0 0 1280 300" role="img" aria-label="Linha do tempo: da versão 0.1 ao lançamento 1.0">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#151517"/>
+      <stop offset="1" stop-color="#1e1729"/>
+    </linearGradient>
+    <linearGradient id="track" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#3a3a40"/>
+      <stop offset=".75" stop-color="#bf5af2"/>
+      <stop offset="1" stop-color="#ffcc33"/>
+    </linearGradient>
+    <radialGradient id="glow" cx=".5" cy=".5" r=".5">
+      <stop offset="0" stop-color="#ffcc33" stop-opacity=".55"/>
+      <stop offset="1" stop-color="#ffcc33" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+
+  <rect width="1280" height="300" rx="24" fill="url(#bg)"/>
+
+  <g font-family="'Segoe UI Variable Text','Segoe UI',-apple-system,'Helvetica Neue',Arial,sans-serif">
+    <text x="48" y="44" font-size="20" font-weight="700" fill="#f5f5f7">Da ideia ao lançamento</text>
+    <text x="48" y="66" font-size="13" fill="#a1a1a6">8 versões e 2 hotfixes até a 1.0 — tudo em 6 de outubro de 2026</text>
+
+    <!-- trilho -->
+    <rect x="80" y="166" width="1120" height="4" rx="2" fill="url(#track)"/>
+
+    <!-- legenda -->
+    <g font-size="11.5" fill="#a1a1a6" transform="translate(904 40)">
+      <circle cx="6" cy="0" r="5" fill="#f5f5f7"/><text x="16" y="4">versão</text>
+      <circle cx="82" cy="0" r="5" fill="#ff9f0a"/><text x="92" y="4">hotfix</text>
+      <circle cx="158" cy="0" r="6" fill="#ffcc33"/><text x="170" y="4">lançamento</text>
+    </g>
+
+    <!-- nós: x = 80 + i*112 ; pares em cima, ímpares embaixo -->
+    <g font-size="14" font-weight="700" text-anchor="middle">
+      <!-- 0.1 -->
+      <line x1="80" y1="168" x2="80" y2="128" stroke="#ffffff22"/>
+      <circle cx="80" cy="168" r="7" fill="#f5f5f7"/>
+      <text x="80" y="104" fill="#f5f5f7">0.1</text>
+      <text x="80" y="121" font-size="11.5" font-weight="500" fill="#a1a1a6">Protótipo</text>
+
+      <!-- 0.2 -->
+      <line x1="192" y1="168" x2="192" y2="208" stroke="#ffffff22"/>
+      <circle cx="192" cy="168" r="7" fill="#f5f5f7"/>
+      <text x="192" y="228" fill="#f5f5f7">0.2</text>
+      <text x="192" y="245" font-size="11.5" font-weight="500" fill="#a1a1a6">.exe + RAM</text>
+
+      <!-- 0.2.1 -->
+      <line x1="304" y1="168" x2="304" y2="128" stroke="#ffffff22"/>
+      <circle cx="304" cy="168" r="5.5" fill="#ff9f0a"/>
+      <text x="304" y="104" fill="#ff9f0a">0.2.1</text>
+      <text x="304" y="121" font-size="11.5" font-weight="500" fill="#a1a1a6">Navegação</text>
+
+      <!-- 0.3 -->
+      <line x1="416" y1="168" x2="416" y2="208" stroke="#ffffff22"/>
+      <circle cx="416" cy="168" r="7" fill="#f5f5f7"/>
+      <text x="416" y="228" fill="#f5f5f7">0.3</text>
+      <text x="416" y="245" font-size="11.5" font-weight="500" fill="#a1a1a6">Captcha + zoom</text>
+
+      <!-- 0.4 -->
+      <line x1="528" y1="168" x2="528" y2="128" stroke="#ffffff22"/>
+      <circle cx="528" cy="168" r="7" fill="#f5f5f7"/>
+      <text x="528" y="104" fill="#f5f5f7">0.4</text>
+      <text x="528" y="121" font-size="11.5" font-weight="500" fill="#a1a1a6">1 a 4 contas</text>
+
+      <!-- 0.5 -->
+      <line x1="640" y1="168" x2="640" y2="208" stroke="#ffffff22"/>
+      <circle cx="640" cy="168" r="7" fill="#f5f5f7"/>
+      <text x="640" y="228" fill="#f5f5f7">0.5</text>
+      <text x="640" y="245" font-size="11.5" font-weight="500" fill="#a1a1a6">Visual macOS</text>
+
+      <!-- 0.6 -->
+      <line x1="752" y1="168" x2="752" y2="128" stroke="#ffffff22"/>
+      <circle cx="752" cy="168" r="7" fill="#f5f5f7"/>
+      <text x="752" y="104" fill="#f5f5f7">0.6</text>
+      <text x="752" y="121" font-size="11.5" font-weight="500" fill="#a1a1a6">Open-source</text>
+
+      <!-- 0.7 -->
+      <line x1="864" y1="168" x2="864" y2="208" stroke="#ffffff22"/>
+      <circle cx="864" cy="168" r="7" fill="#f5f5f7"/>
+      <text x="864" y="228" fill="#f5f5f7">0.7</text>
+      <text x="864" y="245" font-size="11.5" font-weight="500" fill="#a1a1a6">Sempre logado</text>
+
+      <!-- 0.8 -->
+      <line x1="976" y1="168" x2="976" y2="128" stroke="#ffffff22"/>
+      <circle cx="976" cy="168" r="7" fill="#bf5af2"/>
+      <text x="976" y="104" fill="#f5f5f7">0.8</text>
+      <text x="976" y="121" font-size="11.5" font-weight="500" fill="#a1a1a6">Melhores hunts</text>
+
+      <!-- 0.8.1 -->
+      <line x1="1088" y1="168" x2="1088" y2="208" stroke="#ffffff22"/>
+      <circle cx="1088" cy="168" r="5.5" fill="#ff9f0a"/>
+      <text x="1088" y="228" fill="#ff9f0a">0.8.1</text>
+      <text x="1088" y="245" font-size="11.5" font-weight="500" fill="#a1a1a6">Pop-up</text>
+
+      <!-- 1.0 -->
+      <circle cx="1200" cy="168" r="30" fill="url(#glow)"/>
+      <line x1="1200" y1="168" x2="1200" y2="128" stroke="#ffcc3366"/>
+      <circle cx="1200" cy="168" r="11" fill="#ffcc33"/>
+      <path d="M1200 161.5l1.9 3.9 4.3.6-3.1 3 .7 4.3-3.8-2-3.8 2 .7-4.3-3.1-3 4.3-.6z" fill="#1a1400"/>
+      <text x="1200" y="104" font-size="17" fill="#ffcc33">1.0</text>
+      <text x="1200" y="121" font-size="11.5" font-weight="600" fill="#ffcc33">Lançamento</text>
+    </g>
+  </g>
+</svg>
