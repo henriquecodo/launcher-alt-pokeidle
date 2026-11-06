@@ -29,9 +29,11 @@ ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
 OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 ```
 
-## Guia Pokéidle — HardToCapture
+## Onde caçar? e Outland & renda
 
-A função **Melhores hunts** usa, em tempo real, a calculadora "Onde caçar" do [Guia HardToCapture](https://guiapokeidlehardtocapture.site/). Todo o mérito dos cálculos (dados de hunts, dano, XP/h, dinheiro/h) é do guia. O launcher não copia nem redistribui código ou dados do guia: ele abre a página oficial e lê o resultado, como você faria à mão.
+O motor **Onde caçar?** ([src/game/hunt-engine.js](src/game/hunt-engine.js)) é código próprio do launcher. As regras de combate seguem o que o próprio jogo publica no Pokepédia, e os cálculos usam os módulos de regras do jogo (`pokeidle.io/shared/*.mjs`) e o catálogo de espécies, importados ao vivo dentro da conta, no seu computador. O launcher **não** inclui nem redistribui esses módulos.
+
+A ideia de um painel "onde caçar" dentro do jogo veio das ferramentas da comunidade: o Guia HardToCapture (usado até a 1.0), a extensão [/hunt for PokeIdle](https://chromewebstore.google.com/detail/mhnplloljgchpfpcpbhmcokmnefodjnh) (embutida na 1.1 e removida na 1.2, quando parou de funcionar) e o site da comunidade pokeidle-gg. Nenhum código delas faz parte do launcher.
 
 ## Pokémon / Pokéidle.io
 

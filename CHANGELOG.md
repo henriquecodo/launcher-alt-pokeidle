@@ -4,6 +4,59 @@ Todas as mudanças relevantes deste projeto ficam registradas aqui.
 O formato segue o [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/) e o versionamento segue o [SemVer](https://semver.org/lang/pt-BR/).
 As versões 0.x foram as etapas de desenvolvimento antes do lançamento público, todas em 2026-10-06.
 
+## [1.2.0] — 2026-11-06 · Onde caçar e renda da Outland
+
+O jogo chegou à v1.401 e a extensão "/hunt for PokeIdle" parou de funcionar. O launcher passa a ter a sua própria calculadora.
+
+### Adicionado
+- **Onde caçar? próprio** (troféu do card ou **Onde caçar** na barra): simula o pokémon em campo contra cada hunt liberada com as regras de combate do Pokepédia — STAB, efetividade com a ampliação da hunt, cooldown de cada golpe, Investida, IV de Velocidade, HP e dano multiplicados dos selvagens — e as funções de XP/ouro do próprio jogo, importadas ao vivo de `pokeidle.io/shared/`. Top 10 por XP/h, com abates/h e risco. O motor só é injetado quando você abre o painel, e o catálogo sai da memória 3 min depois.
+- **Ritmo medido:** depois de 10 min na mesma hunt, o launcher lê a prancheta de sessão do jogo (`sessao-hunt:<nick>`) e guarda os abates/h reais daquela conta naquela hunt; as hunts ainda não medidas usam a mediana das medidas da conta.
+- **Outland & renda:** Bronze Boss Tokens e fragmentos (Chave, Shiny Stone, Bicicleta) por dia na Outland mais rápida para o seu pokémon, com o tier atual e o bônus de loot; em Gemas já sem a taxa do Mercado, em USDT e em dias até o saque mínimo. Avisa quando o nível já libera um tier melhor e mostra os drops reais medidos em cada hunt.
+- **Preços do Mercado da Comunidade:** abriu o mercado (Fragmentos ou Boss Tokens) em qualquer conta, o launcher guarda o menor anúncio de cada item.
+
+### Alterado
+- "Ir para" acompanha os rótulos novos do jogo (Pokedex sem acento, **Mini Games**) e compara sem acento nem caixa.
+
+### Removido
+- A extensão /hunt, o ajuste dela e a conferência diária na Chrome Web Store. A pasta `extensions` antiga é apagada ao abrir.
+
+## [1.1.1] — 2026-10-19 · Hotfix: farm que não para
+
+O farm do Pokéidle roda no **servidor** enquanto a conexão (WebSocket) de cada conta estiver viva; o jogo pinga a cada 25 s e o servidor derruba quem fica ~60 s calado. Não existe farm offline: desconectada, a conta perde a hunt em 90 s.
+
+### Corrigido
+- **Contas paravam de farmar com o PC ausente.** Em notebooks com *Modern Standby* (o "S0 Ocioso com Baixo Consumo" do Windows — em muitos, o único "sono" que existe), quando você fica ausente e a tela apaga o Windows entra em espera e **congela os programas comuns**: a conexão cai e o servidor para a hunt. Nenhum programa farma nesse estado. O launcher agora **reconecta tudo na volta** e oferece **"Não deixar o PC dormir"** para quem quer farmar ausente (só a tela apaga).
+- Proteção extra contra a economia de timers de página escondida (`IntensiveWakeUpThrottling`, `QuickIntensiveWakeUpThrottlingAfterLoading`, `UseEcoQoSForBackgroundProcess`). Testado: com o launcher minimizado por 8 min os timers das contas seguem a cada 10 s, com ou sem essa proteção — minimizar nunca foi o problema.
+- **Volta do sono/hibernação e desbloqueio da tela:** o launcher cutuca a reconexão de todas as contas na hora (em escadinha), em vez de esperar o jogo perceber.
+- **/hunt parado na versão 1.0.1:** o atualizador baixava versões novas mas continuava carregando a antiga. Agora a versão é escolhida pelo que está no disco e a nova é buscada antes de carregar.
+
+### Adicionado
+- **Vigia de conexão:** 90 s sem nenhuma mensagem do servidor → "cutucão" de reconexão; se em 1 min não voltar → recarrega a conta. Conta aberta em outro lugar ("Jogar aqui") nunca é tomada de volta sozinha, e o card mostra "aberta em outro lugar" / "reconectando…".
+- **Sem cena quando ausente** (ligado por padrão): com o PC ausente (5 min sem uso ou tela bloqueada) ou o launcher minimizado, tira a cena das contas — menos RAM/CPU, a caça continua — e religa na volta, só onde o launcher desligou.
+- **Farmar com o Windows bloqueado** (ligado por padrão): ao bloquear com Win+L, o launcher pede ao Windows para não entrar em espera por ociosidade enquanto estiver bloqueado (a tela apaga normalmente) — no Modern Standby, a tela apagar depois do bloqueio punha o PC em espera e congelava o jogo. Desbloqueou, o pedido sai. Tampa fechada e "Suspender" continuam dormindo.
+- **Não deixar o PC dormir** (opcional, desligado por padrão): o mesmo pedido, o tempo todo.
+
+### Alterado
+- **/hunt desligado por padrão** e, quando ligado, só na conta principal (ou em todas, se escolher): ele pré-carrega ~4 MB de dados do jogo e reprocessa cada pacote em cada conta onde roda.
+
+## [1.1.0] — 2026-10-13 · Acompanhando o jogo
+
+O jogo atualizou (v1.275): o guia virou a extensão oficial "/hunt for PokeIdle", entrou um aviso de cookies e a cena do Modo Economia ganhou botões próprios.
+
+### Adicionado
+- **/hunt oficial embutido:** a extensão "/hunt for PokeIdle" (indicada pelo jogo nos comandos `/guia` e `/hunt`) é baixada da Chrome Web Store, conferida (só pode rodar em `pokeidle.io`) e carregada em todas as contas. O troféu do card e o botão **/hunt** da barra abrem o "Onde caçar?". Atualização da extensão conferida 1×/dia. Ajuste para desligar.
+- **Saúde das contas:** "Destravar conta parada" (XP parado por 15 min → recarrega) e "Atualização preventiva" (F5 a cada 2/4/6/12 h, padrão 6 h, contas com 3 min de diferença). Nenhum dos dois age se você mexeu na conta nos últimos 10 min.
+- **Animação a 30 FPS** (ligada por padrão): a cena é desenhada na metade dos quadros; o jogo move tudo pelo tempo, então a caça não muda.
+- **Modo Economia em massa** no menu Automações.
+- Com "Bloquear rastreadores" ligado, o novo aviso de cookies do jogo é respondido com "Recusar" (só se ainda não houver escolha).
+
+### Corrigido
+- Ligar/desligar a cena às vezes travava até reiniciar o launcher: ele regravava `cfg-economia` a cada 2 s e brigava com o botão "Ligar a cena" do jogo. Agora o jogo guarda a escolha e o launcher usa os botões dele (`#hunt-eco`, `#arena-eco`, `#eco-sair`).
+- O som também deixou de ser regravado a cada 2 s: o launcher aplica o mudo uma vez e o jogo passa a mandar.
+
+### Removido
+- "Melhores hunts" via Guia HardToCapture (o site saiu do ar e foi substituído pela extensão). Saem junto a leitura da ficha do pokémon e de VIP/evento, que rodava a cada 2 s em cada conta.
+
 ## [1.0.0] — 2026-10-06 · Lançamento
 
 Primeira versão pública: tudo das versões 0.x reunido, com a base testada numa noite inteira de farm com várias contas.

@@ -3,8 +3,11 @@
  * e repassa ao jogo só os cliques que você fizer (automações, abas, zoom).
  */
 const GAME_URL = 'https://pokeidle.io/app';
-const GUIDE_URL = 'https://guiapokeidlehardtocapture.site/';
 const MAX = 4;
+const IDLE_MS = 10 * 60e3;      // sem mexer na conta há 10 min = pode recarregar sozinho
+const STALL_MS = 15 * 60e3;     // XP parado há 15 min (depois de já ter subido) = conta travada
+const DEAD_MS = 90e3;           // 90 s sem nenhuma mensagem do servidor = conexão caída (o jogo pinga a cada 25 s)
+const POKE_WAIT_MS = 60e3;      // depois do cutucão, espera 1 min antes de recarregar
 
 const AUTOS = [
   { id: 'auto-ball-captura', icon: 'target', label: 'Lançar até capturar' },
@@ -13,7 +16,7 @@ const AUTOS = [
   { id: 'auto-potion', icon: 'flask', label: 'Usar poções' },
   { id: 'auto-voltar-hunt', icon: 'undo', label: 'Voltar à hunt ao morrer' },
 ];
-const NAV = ['Pokédex', 'Mapa', 'Market', 'Passe', 'Ranks', 'Boss', 'PvP', 'Ginásio', 'Torneio', 'Casa', 'Shop', 'Wiki'];
+const NAV = ['Pokedex', 'Mapa', 'Market', 'Passe', 'Ranks', 'Boss', 'PvP', 'Ginásio', 'Torneio', 'Mini Games', 'Casa', 'Shop', 'Wiki'];
 
 const $ = (s, r = document) => r.querySelector(s);
 const $$ = (s, r = document) => [...r.querySelectorAll(s)];
@@ -82,6 +85,7 @@ function pushXp(p, xp) {
     let d = xp.cur - p.lastXp.cur;
     if (d < 0) d = p.lastXp.max - p.lastXp.cur + xp.cur; // subiu de nível
     p.gained += d;
+    if (d > 0) { p.lastXpChange = now; p.farming = true; }
   }
   p.lastXp = xp;
   p.samples.push([now, p.gained]);
@@ -98,8 +102,33 @@ function xpPerHour(p) {
 const js = (p, code) => (p.ready ? p.wv.executeJavaScript(code).catch(() => null) : Promise.resolve(null));
 const setAuto = (p, id, want) =>
   js(p, `(()=>{const e=document.getElementById(${JSON.stringify(id)});if(e&&e.checked!==${!!want})e.click()})()`);
+// Compara sem acento e sem caixa: o jogo já trocou "Pokédex" por "Pokedex" e muda rótulos entre versões.
 const navTo = (p, label) =>
-  js(p, `(()=>{const b=[...document.querySelectorAll('button')].find(b=>b.innerText.trim()===${JSON.stringify(label)});if(b)b.click()})()`);
+  js(p, `(()=>{const n=(t)=>t.normalize('NFD').replace(/[\u0300-\u036f]/g,'').trim().toLowerCase();const w=n(${JSON.stringify(label)});const bs=[...document.querySelectorAll('button')].filter(b=>n(b.innerText)===w);const b=bs.find(b=>b.offsetParent!==null)||bs[0];if(b)b.click()})()`);
+
+// Modo Economia (sem cena) pelos botões do PRÓPRIO jogo — "Economia" na hunt/arena para ligar,
+// "Ligar a cena" para desligar. Assim o jogo fica sempre coerente. Se o botão não estiver na tela
+// (ex.: no Centro Pokémon), grava a escolha e recarrega a conta, que já abre no modo certo.
+async function setEco(p, want, quiet, noReload) {
+  const name = cfg.accounts[p.idx].name;
+  const r = await js(p, `(() => {
+    if (document.documentElement.classList.contains('modo-economia') === ${want}) return 'ok';
+    for (const id of ${JSON.stringify(want ? ['hunt-eco', 'arena-eco'] : ['eco-sair'])}) {
+      const b = document.getElementById(id);
+      if (b && b.offsetParent !== null) { b.click(); return 'click'; }
+    }
+    if (${!!noReload}) return 'none';
+    localStorage.setItem('cfg-economia', '${want ? 1 : 0}');
+    return 'reload';
+  })()`);
+  if (!r || r === 'none') return false;
+  if (r === 'reload') reloadPanel(p);
+  if (p.state) p.state.eco = want;
+  renderPanel(p);
+  renderAllAutos();
+  if (!quiet && r) toast(`${name}: ${want ? 'Modo Economia ligado (sem cena)' : 'cena ligada'}${r === 'reload' ? ' — recarregando' : ''}`);
+  return !!r;
+}
 
 function toggleAuto(p, id, value) {
   const acc = cfg.accounts[p.idx];
@@ -142,7 +171,10 @@ function renderPanel(p) {
   const on = !!(s && s.loggedIn);
   el.classList.toggle('live', on);
   el.classList.toggle('login', !!(s && !s.loggedIn));
-  $('.state', el).textContent = p.queued ? 'na fila…' : !s ? 'carregando…' : on ? '' : 'faça login';
+  $('.state', el).textContent = p.queued ? 'na fila…' : !s ? 'carregando…'
+    : on && s.tomada ? 'aberta em outro lugar'
+    : on && s.wsOpen === false ? 'reconectando…'
+    : on ? '' : 'faça login';
   $('.lvl', el).textContent = on && s.level ? s.level.replace(/^\D*/, 'Nv ') : '';
   const x = xpPerHour(p);
   $('.xph b', el).textContent = x == null ? '—' : fmt(x);
@@ -152,7 +184,7 @@ function renderPanel(p) {
     b.disabled = !on || v === null;
     b.classList.toggle('on', !!v);
   });
-  $('.eco', el).classList.toggle('on', acc.eco === true);
+  $('.eco', el).classList.toggle('on', !!(s && s.eco));
   const mute = $('.mute', el);
   mute.classList.toggle('on', p.muted);
   setIcon($('.ic', mute), p.muted ? 'mute' : 'volume');
@@ -179,6 +211,13 @@ function renderTotals() {
 
 function renderAllAutos() {
   const ps = online();
+  const ecoRow = $('#all-eco');
+  if (ecoRow) {
+    const n = ps.filter((p) => p.state.eco).length;
+    $('.switch', ecoRow).checked = ps.length > 0 && n === ps.length;
+    $('.switch', ecoRow).disabled = ps.length === 0;
+    $('.count', ecoRow).textContent = ps.length ? `${n} de ${ps.length} sem cena` : 'nenhuma online';
+  }
   $$('#all-autos .item').forEach((row) => {
     const id = row.dataset.id;
     const n = ps.filter((p) => p.state.auto[id]).length;
@@ -214,12 +253,12 @@ function onState(p, st) {
   const acc = cfg.accounts[p.idx];
   // Nome padrão? usa o nick do jogo.
   if (st.loggedIn && st.nick && DEFAULT_NAME.test(acc.name)) { acc.name = st.nick.slice(0, 20); save(); }
-  // Você abriu a ficha de um pokémon no jogo: guarda para "Melhores hunts".
-  if (st.ficha) onFicha(p, st.ficha);
   // Acabou de logar: reaplica as automações escolhidas no launcher.
   if (st.loggedIn && !(prev && prev.loggedIn)) {
     setTimeout(() => AUTOS.forEach(({ id }) => id in acc.desired && setAuto(p, id, acc.desired[id])), 2500);
   }
+  medirRitmo(p, st);
+  if (st.precos) guardarPrecos(st.precos);
   renderPanel(p);
   renderTotals();
   renderAllAutos();
@@ -239,7 +278,7 @@ function buildPanel(i, delay = 0) {
   wv.setAttribute('partition', `persist:conta${i + 1}`); // login/dados isolados por conta
   wv.setAttribute('src', GAME_URL); // o preload e as travas de segurança são impostos pelo main.js
 
-  const p = { idx: i, el, wv, huntsCache: null, ready: false, queued: delay > 0, state: null, samples: [], gained: 0, lastXp: null, muted: !!acc.muted, lastZoom: null, hotCount: 0 };
+  const p = { idx: i, el, wv, loadedAt: Date.now(), lastXpChange: Date.now(), farming: false, ready: false, queued: delay > 0, state: null, samples: [], gained: 0, lastXp: null, muted: !!acc.muted, lastZoom: null, hotCount: 0 };
   panels[i] = p;
   const attach = () => { p.queued = false; if (panels[i] === p) $('.card-body', el).appendChild(wv); renderPanel(p); };
   if (delay) setTimeout(attach, delay);
@@ -260,7 +299,14 @@ function buildPanel(i, delay = 0) {
   name.addEventListener('input', () => { acc.name = name.value.trim() || `Conta ${i + 1}`; save(); });
   name.addEventListener('keydown', (e) => e.key === 'Enter' && name.blur());
 
-  wv.addEventListener('dom-ready', () => { p.ready = true; p.lastZoom = null; applyZoom(p); if (p.muted) wv.setAudioMuted(true); });
+  wv.addEventListener('dom-ready', () => {
+    p.ready = true;
+    p.lastZoom = null;
+    p.loadedAt = p.lastXpChange = Date.now();
+    p.farming = false; // o vigia de "conta parada" só volta a valer depois que o XP subir de novo
+    applyZoom(p);
+    if (p.muted) wv.setAudioMuted(true);
+  });
   wv.addEventListener('did-start-loading', () => { p.state = null; renderPanel(p); });
   wv.addEventListener('ipc-message', (e) => e.channel === 'state' && onState(p, e.args[0]));
   // O jogo desta conta caiu (falta de memória, travamento...): só este card recarrega, o resto segue.
@@ -283,13 +329,11 @@ function buildPanel(i, delay = 0) {
   $('.reload', el).onclick = () => reloadPanel(p);
   $('.home', el).onclick = () => p.ready && wv.loadURL(GAME_URL);
   $('.mute', el).onclick = () => { setMuted(p, !p.muted); paintMuteAll(); save(); };
-  $('.eco', el).onclick = async () => {
-    acc.eco = acc.eco !== true;
-    await saveNow(); // o preload lê a config ao recarregar
-    toast(`${acc.name}: Modo Economia ${acc.eco ? 'ligado' : 'desligado'} — recarregando`);
-    reloadPanel(p);
+  $('.eco', el).onclick = () => {
+    if (!(p.state && p.state.loggedIn)) return toast(`${acc.name}: entre na conta para mudar a cena`);
+    setEco(p, !p.state.eco);
   };
-  $('.hunts', el).onclick = () => toggleSheet(p);
+  $('.hunts', el).onclick = () => abrirOndeCacar(p);
   $('.focus', el).onclick = () => {
     const on = !el.classList.contains('focused');
     $$('.card').forEach((x) => x.classList.remove('focused'));
@@ -358,6 +402,74 @@ async function pollMemory() {
   });
 }
 
+// ---------- Saúde das contas ----------
+// O farm roda no SERVIDOR enquanto a conexão (WebSocket) de cada conta estiver viva. Por isso:
+//  - Conexão caída: 90 s sem nenhuma mensagem do servidor → "cutucão" (o jogo confere e reconecta
+//    na hora); se em 1 min não voltar → recarrega a conta. Vale mesmo com você mexendo nela.
+//  - Conta parada: o XP subia e parou há 15 min (tela travada) → recarrega.
+//  - Atualização preventiva: a cada N horas, para devolver a memória que a página acumula.
+//    As contas não recarregam juntas: cada uma tem 3 min de diferença.
+// Os dois últimos só com a conta parada nas suas mãos há 10 min. Conta aberta em outro lugar
+// ("Jogar aqui" do jogo) nunca é tomada de volta sozinha.
+function poke(p) { if (p.ready) try { p.wv.send('poke'); } catch {} }
+
+function healthCheck() {
+  const now = Date.now();
+  for (const p of live()) {
+    const s = p.state;
+    if (!p.ready || !s || !s.loggedIn || s.tomada) continue;
+    const name = cfg.accounts[p.idx].name;
+    const dead = s.wsAgo != null && s.wsAgo > DEAD_MS;
+    if (!dead) p.pokedAt = 0;
+    if (cfg.watchdog !== false && dead) {
+      if (!p.pokedAt) { p.pokedAt = now; poke(p); }
+      else if (now - p.pokedAt > POKE_WAIT_MS) {
+        p.pokedAt = 0;
+        toast(`${name}: conexão caiu — recarregando a conta`);
+        reloadPanel(p);
+      }
+      continue;
+    }
+    if ((s.idleMs ?? 0) < IDLE_MS) continue;
+    if (cfg.watchdog !== false && p.farming && now - p.lastXpChange > STALL_MS) {
+      toast(`${name}: XP parado há 15 min — recarregando a conta`);
+      reloadPanel(p);
+    } else if (cfg.autoRefreshH > 0 && now - p.loadedAt > cfg.autoRefreshH * 3600e3 + p.idx * 3 * 60e3) {
+      toast(`${name}: atualização preventiva`);
+      reloadPanel(p);
+    }
+  }
+}
+
+// ---------- Energia: voltar do sono, desbloquear, ausente ----------
+// Voltou da suspensão/hibernação: a rede leva alguns segundos para subir. Cutuca todas as contas
+// em escadinha; quem não reconectar em 1 min é recarregado pelo healthCheck.
+function onPower(msg) {
+  if (msg.type === 'resume' || msg.type === 'unlock') {
+    live().forEach((p, i) => setTimeout(() => { p.pokedAt = 0; poke(p); }, (msg.type === 'resume' ? 8000 : 1000) + i * 2000));
+    if (msg.type === 'resume') toast('PC de volta — reconectando as contas');
+  } else if (msg.type === 'away') {
+    setAway(msg.away);
+  }
+}
+
+// "Sem cena quando ausente": com o PC ausente (5 min sem uso, tela bloqueada) ou o launcher
+// minimizado, tira a cena das contas — o jogo para de desenhar, solta o mapa da memória e o servidor
+// para de mandar o campo; a caça continua. Na volta, religa a cena só onde o launcher desligou.
+let away = false;
+async function setAway(on) {
+  away = on;
+  if (cfg.awayEco === false) return;
+  for (const p of online()) {
+    if (on && !p.state.eco) {
+      if (await setEco(p, true, true, true)) p.awayEco = true;
+    } else if (!on && p.awayEco) {
+      p.awayEco = false;
+      await setEco(p, false, true, true);
+    }
+  }
+}
+
 // ---------- Barra de ferramentas ----------
 function closePops() {
   $$('.pop').forEach((x) => x.classList.remove('open'));
@@ -392,6 +504,16 @@ function bindToolbar() {
     };
     box.appendChild(row);
   }
+  const eco = document.createElement('label');
+  eco.className = 'item';
+  eco.id = 'all-eco';
+  eco.innerHTML = `<i class="ic">${svgIcon('leaf')}</i><div><b>Modo Economia (sem cena)</b><small class="count"></small></div><input type="checkbox" class="switch">`;
+  $('.switch', eco).onchange = (e) => {
+    const ps = online();
+    ps.forEach((p) => setEco(p, e.target.checked, true));
+    toast(`${e.target.checked ? 'Cena desligada' : 'Cena ligada'} em ${ps.length} conta${ps.length > 1 ? 's' : ''}`);
+  };
+  box.appendChild(eco);
 
   // Ir para
   const nav = $('#nav-grid');
@@ -413,7 +535,12 @@ function bindToolbar() {
     toast('Sessão zerada');
   };
   $('#btn-reload-all').onclick = () => { live().forEach(reloadPanel); toast('Atualizando todas as contas'); };
-  $('#btn-guide').onclick = () => window.launcher.openExternal(GUIDE_URL);
+  // "Onde caçar" da barra: abre na conta em foco ou na primeira conta online.
+  $('#btn-guide').onclick = () => {
+    const f = panels.find((p) => p && p.el.classList.contains('focused')) || online()[0];
+    if (f) abrirOndeCacar(f);
+    else toast('Entre em uma conta para ver onde caçar');
+  };
   $('#btn-mute-all').onclick = () => {
     const m = !live().every((p) => p.muted);
     live().forEach((p) => setMuted(p, m));
@@ -438,12 +565,25 @@ function bindToolbar() {
   $('#cfg-layout').onchange = (e) => { cfg.layout = e.target.value; renderGrid(); save(); };
   $('#cfg-ram').value = String(cfg.ramLimit);
   $('#cfg-ram').onchange = (e) => { cfg.ramLimit = +e.target.value; save(); };
+  $('#cfg-lock').checked = cfg.lockFarm !== false;
+  $('#cfg-lock').onchange = (e) => { cfg.lockFarm = e.target.checked; save(); };
+  $('#cfg-awake').checked = cfg.keepAwake === true;
+  $('#cfg-awake').onchange = async (e) => { cfg.keepAwake = e.target.checked; save(); await window.launcher.keepAwake(cfg.keepAwake); };
+  $('#cfg-away').checked = cfg.awayEco !== false;
+  $('#cfg-away').onchange = (e) => { cfg.awayEco = e.target.checked; save(); if (!cfg.awayEco) setAway(false); };
+  $('#cfg-fps').checked = cfg.fps30 !== false;
+  $('#cfg-fps').onchange = (e) => { cfg.fps30 = e.target.checked; save(); toast('Vale ao atualizar as contas'); };
+  $('#cfg-watch').checked = cfg.watchdog !== false;
+  $('#cfg-watch').onchange = (e) => { cfg.watchdog = e.target.checked; save(); };
+  $('#cfg-refresh').value = String(cfg.autoRefreshH);
+  $('#cfg-refresh').onchange = (e) => { cfg.autoRefreshH = +e.target.value; save(); };
 }
 
 // ---------- Início ----------
 (async function init() {
   const saved = (await window.launcher.loadCfg()) || {};
-  cfg = { count: MAX, layout: 'auto', ramLimit: 2000, forceOtim: true, forceNight: true, ...saved };
+  cfg = { count: MAX, layout: 'auto', ramLimit: 2000, forceOtim: true, forceNight: true, autoRefreshH: 6, ...saved };
+  delete cfg.huntScope; // extensão /hunt saiu na 1.2
   cfg.accounts = Array.from({ length: MAX }, (_, i) => ({ ...defaultAccount(i), ...((saved.accounts || [])[i] || {}) }));
   if (!cfg.v || cfg.v < 3) { // migração das versões anteriores
     cfg.accounts.forEach((a) => (a.zoom = null));
@@ -457,4 +597,6 @@ function bindToolbar() {
   setInterval(() => { live().forEach(renderPanel); renderTotals(); }, 5000);
   setInterval(pollMemory, 30000);
   setTimeout(pollMemory, 6000);
+  setInterval(healthCheck, 20000);
+  window.launcher.onPower(onPower);
 })();

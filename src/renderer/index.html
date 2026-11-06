@@ -64,12 +64,15 @@
     </div>
     <button class="tbtn" id="btn-reload-all" data-tip="Recarrega todas as contas. Login e automações são mantidos."><i data-icon="reload"></i><span>Atualizar</span></button>
     <button class="tbtn" id="btn-mute-all" data-tip="Liga/desliga o som de todas as contas"><i data-icon="volume"></i><span>Som</span></button>
-    <button class="tbtn accent" id="btn-guide" data-tip="Abre o guia do jogo no navegador"><i data-icon="book"></i><span>Guia</span></button>
+    <button class="tbtn accent" id="btn-guide" data-tip="Onde caçar? Melhores hunts e renda da Outland da conta em foco (ou da primeira online)"><i data-icon="trophy"></i><span>Onde caçar</span></button>
     <div class="pop-host">
       <button class="tbtn icon-only" data-pop="pop-cfg" data-tip="Ajustes"><i data-icon="sliders"></i></button>
       <div class="pop right" id="pop-cfg">
         <div class="pop-title">Ajustes</div>
         <div class="list">
+          <label class="item"><div><b>Farmar com o Windows bloqueado</b><small>Bloqueou com Win+L? O PC não entra em espera sozinho enquanto estiver bloqueado (a tela apaga normalmente). Desbloqueou, volta ao normal</small></div><input type="checkbox" id="cfg-lock" class="switch"></label>
+          <label class="item"><div><b>Não deixar o PC dormir</b><small>Opcional. Com o PC dormindo o jogo não farma (não existe farm offline). Ligado, só a tela apaga e as contas seguem farmando</small></div><input type="checkbox" id="cfg-awake" class="switch"></label>
+          <label class="item"><div><b>Sem cena quando ausente</b><small>PC ausente ou launcher minimizado: tira a cena (bem menos RAM/CPU, a caça continua) e religa quando você volta</small></div><input type="checkbox" id="cfg-away" class="switch"></label>
           <label class="item"><div><b>Manter contas logadas</b><small>Ao reabrir o launcher, entra direto sem pedir login</small></div><input type="checkbox" id="cfg-keep" class="switch"></label>
           <label class="item"><div><b>Bloquear rastreadores</b><small>Corta anúncios/analytics da página: menos RAM. Vale ao reabrir.</small></div><input type="checkbox" id="cfg-track" class="switch"></label>
           <label class="item"><div><b>Modo otimizado</b><small>Sem animação de golpes e números de dano</small></div><input type="checkbox" id="cfg-otim" class="switch"></label>
@@ -80,8 +83,13 @@
           <label class="item"><div><b>Reiniciar conta pesada</b><small>Recarrega se passar do limite de RAM</small></div>
             <select id="cfg-ram"><option value="0">Nunca</option><option value="1000">1 GB</option><option value="1500">1,5 GB</option><option value="2000">2 GB</option><option value="3000">3 GB</option></select>
           </label>
+          <label class="item"><div><b>Atualização preventiva</b><small>Dá um F5 em cada conta de tempos em tempos, só se você não estiver mexendo nela</small></div>
+            <select id="cfg-refresh"><option value="0">Nunca</option><option value="2">A cada 2 h</option><option value="4">A cada 4 h</option><option value="6">A cada 6 h</option><option value="12">A cada 12 h</option></select>
+          </label>
+          <label class="item"><div><b>Vigiar a conexão</b><small>Se uma conta perder a conexão com o servidor, reconecta (e recarrega se preciso). Também destrava XP parado por 15 min</small></div><input type="checkbox" id="cfg-watch" class="switch"></label>
+          <label class="item"><div><b>Animação a 30 FPS</b><small>Metade do esforço para desenhar a cena; a caça não muda</small></div><input type="checkbox" id="cfg-fps" class="switch"></label>
         </div>
-        <div class="pop-foot">Modo otimizado e Night Mode valem após atualizar as contas.</div>
+        <div class="pop-foot">Modo otimizado, Night Mode e 30 FPS valem após atualizar as contas; bloqueio de rastreadores, ao reabrir o launcher.</div>
       </div>
     </div>
   </nav>
@@ -90,8 +98,6 @@
 
 <main id="grid"></main>
 <div id="toast"></div>
-<div id="guide-host" aria-hidden="true"></div>
-
 <template id="panel-tpl">
   <section class="card">
     <div class="card-head">
@@ -109,7 +115,7 @@
       <div class="spacer"></div>
       <div class="autos"></div>
       <div class="ctrls">
-        <button class="ibtn hunts" data-tip="Melhores hunts para o seu pokémon (cálculo do Guia)"><i data-icon="trophy"></i></button>
+        <button class="ibtn hunts" data-tip="Onde caçar? Melhores hunts para o pokémon em campo e renda da Outland"><i data-icon="trophy"></i></button>
         <button class="ibtn eco" data-tip="Modo Economia: o jogo não desenha o mapa (bem menos RAM/CPU). A caça continua."><i data-icon="leaf"></i></button>
         <button class="ibtn mute" data-tip="Som desta conta"><i data-icon="volume"></i></button>
         <div class="stepper">
@@ -122,12 +128,11 @@
         <button class="ibtn focus" data-tip="Ver só esta conta (as outras continuam farmando)"><i data-icon="expand"></i></button>
       </div>
     </div>
-    <div class="card-body"><aside class="sheet"></aside></div>
+    <div class="card-body"></div>
+    <aside class="sheet"></aside>
   </section>
 </template>
 
-<script src="icons.js"></script>
-<script src="hunts.js"></script>
-<script src="renderer.js"></script>
+<script src="icons.js"></script><script src="renderer.js"></script><script src="onde-cacar.js"></script>
 </body>
 </html>

@@ -103,7 +103,7 @@ button { cursor: pointer; background: none; border: 0; padding: 0; }
   opacity: 0; transform: translateY(-4px) scale(.98); transform-origin: top left; pointer-events: none;
   transition: opacity .16s var(--ease), transform .2s var(--ease);
 }
-.pop.right { left: auto; right: 0; transform-origin: top right; min-width: 330px; }
+.pop.right { left: auto; right: 0; transform-origin: top right; min-width: 330px; max-width: 380px; max-height: calc(100vh - 70px); overflow: auto; }
 .pop.open { opacity: 1; transform: none; pointer-events: auto; }
 .pop-title { font-weight: 650; font-size: 13.5px; padding: 0 4px; }
 .pop-sub { font-size: 11.5px; color: var(--txt-2); padding: 2px 4px 10px; }
@@ -114,6 +114,7 @@ button { cursor: pointer; background: none; border: 0; padding: 0; }
 .item > div { flex: 1; display: flex; flex-direction: column; }
 .item b { font-weight: 550; }
 .item small { color: var(--txt-2); font-size: 11.5px; }
+.item small a { color: var(--violet); }
 .item .ic { color: var(--txt-2); }
 .item .count { color: var(--txt-3); font-size: 11.5px; font-variant-numeric: tabular-nums; }
 .item select {
@@ -208,59 +209,6 @@ button { cursor: pointer; background: none; border: 0; padding: 0; }
 .card-body { flex: 1; min-height: 0; position: relative; background: #0c0c0e; }
 webview { position: absolute; inset: 0; width: 100%; height: 100%; }
 
-/* ================= Melhores hunts (painel lateral do card) ================= */
-.card.sheet-open .ibtn.hunts { color: var(--accent); background: rgba(255, 204, 51, .12); }
-.sheet {
-  position: absolute; top: 0; right: 0; bottom: 0; z-index: 5; width: min(400px, 100%);
-  display: flex; flex-direction: column; gap: 10px; padding: 14px; overflow: auto;
-  background: var(--surface); box-shadow: -1px 0 0 var(--hair-2), -18px 0 40px rgba(0, 0, 0, .45);
-  transform: translateX(104%); transition: transform .28s var(--ease); user-select: text;
-}
-.card.sheet-open .sheet { transform: none; }
-.sheet-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; }
-.sheet-head > div { display: flex; flex-direction: column; }
-.sheet-head b { font-size: 15px; font-weight: 650; }
-.sheet-head small { color: var(--txt-2); font-size: 12px; }
-.sheet-ctx { display: flex; flex-wrap: wrap; gap: 6px; }
-.sheet-ctx span { font-size: 11.5px; color: var(--txt-2); background: var(--surface-2); border-radius: 7px; padding: 3px 8px; box-shadow: inset 0 0 0 1px var(--hair); }
-.sheet-ctx b { color: var(--txt); font-weight: 600; }
-.sheet-safe { font-size: 12.5px; color: var(--txt-2); padding: 8px 10px; border-radius: 10px; background: rgba(48, 209, 88, .08); box-shadow: inset 0 0 0 1px rgba(48, 209, 88, .25); }
-.sheet-safe b { color: var(--green); }
-.hunt-list { display: flex; flex-direction: column; background: var(--surface); border-radius: 12px; box-shadow: inset 0 0 0 1px var(--hair); overflow: hidden; }
-.hunt { display: flex; align-items: center; gap: 10px; padding: 10px 12px; }
-.hunt + .hunt { border-top: 1px solid var(--hair); }
-.hunt:first-child { background: linear-gradient(90deg, rgba(255, 204, 51, .08), transparent 70%); }
-.rank {
-  width: 22px; height: 22px; flex: none; border-radius: 50%; display: grid; place-items: center;
-  font-size: 11.5px; font-weight: 700; color: var(--txt-2); background: var(--surface-3);
-}
-.hunt:first-child .rank { background: var(--accent); color: #1a1400; }
-.h-main { flex: 1; min-width: 0; display: flex; flex-direction: column; }
-.h-main b { font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.h-main small { color: var(--txt-2); font-size: 11.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.h-num { display: flex; flex-direction: column; align-items: flex-end; min-width: 62px; font-variant-numeric: tabular-nums; }
-.h-num b { font-weight: 650; color: var(--accent); }
-.h-num.money b { color: var(--txt); }
-.h-num small { color: var(--txt-3); font-size: 10.5px; }
-.sheet-empty { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; gap: 8px; padding: 20px 10px; color: var(--txt-2); }
-.sheet-empty b { color: var(--txt); font-weight: 600; }
-.sheet-empty p { margin: 0; font-size: 12.5px; max-width: 290px; }
-.sheet-ill { width: 52px; height: 52px; border-radius: 14px; display: grid; place-items: center; background: rgba(255, 204, 51, .1); color: var(--accent); margin-bottom: 4px; }
-.sheet-ill .ic { width: 26px; height: 26px; }
-.sheet-actions { display: flex; gap: 8px; margin-top: 6px; }
-.btn-soft { height: 30px; padding: 0 12px; border-radius: 8px; background: var(--surface-2); color: var(--txt); box-shadow: inset 0 0 0 1px var(--hair-2); }
-.btn-soft:hover { background: var(--surface-3); }
-.sheet-foot { margin-top: auto; display: flex; align-items: center; gap: 10px; font-size: 11px; color: var(--txt-3); }
-.sheet-foot span:last-child { margin-left: auto; }
-.sheet-foot a { color: var(--txt-2); }
-.sheet-foot .mini { font-size: 11px; color: var(--violet); }
-.spinner { width: 26px; height: 26px; border-radius: 50%; border: 2.5px solid var(--surface-3); border-top-color: var(--accent); animation: spin .8s linear infinite; }
-@keyframes spin { to { transform: rotate(360deg); } }
-
-/* Guia consultado escondido (fora da tela, sem interação) */
-#guide-host { position: fixed; left: -20000px; top: 0; width: 1280px; height: 900px; opacity: 0; pointer-events: none; }
-#guide-host webview { position: absolute; inset: 0; }
-
 /* Cards estreitos: esconde o secundário, mantendo uma linha só */
 @container (max-width: 860px) { .ram, .state { display: none; } }
 @container (max-width: 760px) { .sess, .lvl, .ibtn.home { display: none; } .name { width: 100px; } }
@@ -285,3 +233,56 @@ webview { position: absolute; inset: 0; width: 100%; height: 100%; }
   font-size: 12.5px; opacity: 0; pointer-events: none; transition: opacity .2s, transform .25s var(--ease);
 }
 #toast.show { opacity: 1; transform: translate(-50%, 0); }
+
+/* ================= "Onde caçar?" (painel lateral do card) ================= */
+.card { position: relative; }
+.sheet {
+  position: absolute; top: 40px; right: 0; bottom: 0; width: min(460px, 100%); z-index: 5;
+  display: flex; flex-direction: column; background: rgba(22, 22, 24, .97); border-left: 1px solid var(--hair-2);
+  box-shadow: -12px 0 32px rgba(0, 0, 0, .45); transform: translateX(102%); visibility: hidden;
+  transition: transform .25s var(--ease), visibility 0s .25s; user-select: text;
+}
+.card.sheet-open .sheet { transform: none; visibility: visible; transition: transform .25s var(--ease); }
+.card.sheet-open .ibtn.hunts { color: var(--accent); background: rgba(255, 204, 51, .12); }
+.sheet-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 10px 8px 6px 14px; }
+.sheet-head b { font-size: 14px; display: block; }
+.sheet-head small { color: var(--txt-2); font-size: 11.5px; }
+.sheet-acoes { display: flex; gap: 2px; }
+.sheet-tabs { display: flex; gap: 2px; margin: 0 14px 8px; padding: 2px; border-radius: 9px; background: var(--surface-2); box-shadow: inset 0 0 0 1px var(--hair); }
+.sheet-tabs button { flex: 1; height: 26px; border-radius: 7px; font-size: 12px; font-weight: 600; color: var(--txt-2); }
+.sheet-tabs button.on { background: var(--surface-3); color: var(--txt); box-shadow: 0 1px 2px rgba(0, 0, 0, .4); }
+.sheet-corpo { flex: 1; min-height: 0; overflow: auto; padding: 0 14px 14px; font-size: 12px; }
+.sheet-vazio { display: grid; place-items: center; gap: 6px; text-align: center; padding: 40px 12px; color: var(--txt-2); }
+.sheet-vazio b { color: var(--txt); }
+.sheet-vazio p { margin: 0; font-size: 11.5px; }
+.spinner { width: 22px; height: 22px; border-radius: 50%; border: 2px solid var(--hair-2); border-top-color: var(--accent); animation: gira .8s linear infinite; }
+@keyframes gira { to { transform: rotate(360deg); } }
+.sheet-ctx { display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: 8px; }
+.sheet-ctx span { font-size: 11px; color: var(--txt-2); background: var(--surface-2); border-radius: 6px; padding: 2px 7px; }
+.sheet-ctx b { color: var(--txt); font-weight: 600; }
+.sheet-atual, .sheet-tier, .sheet-dica, .sheet-medido { border-radius: 8px; padding: 7px 9px; margin-bottom: 8px; background: var(--surface-2); color: var(--txt-2); }
+.sheet-atual b, .sheet-tier b, .sheet-medido b { color: var(--txt); }
+.sheet-dica { background: rgba(255, 204, 51, .1); color: var(--accent); }
+.sheet-sub { margin: 12px 0 6px; font-weight: 600; color: var(--txt-2); }
+.sheet-sub b { color: var(--txt); }
+.sheet-nota { margin: 8px 0; font-size: 11px; color: var(--txt-3); }
+.sheet-nota b { color: var(--txt-2); }
+.hunt-list { display: flex; flex-direction: column; gap: 3px; }
+.hunt { display: flex; align-items: center; gap: 9px; padding: 6px 8px; border-radius: 8px; background: var(--surface); box-shadow: inset 0 0 0 1px var(--hair); }
+.hunt .rank { width: 18px; text-align: center; font-weight: 700; color: var(--txt-3); font-variant-numeric: tabular-nums; }
+.hunt:first-child .rank { color: var(--accent); }
+.h-main { flex: 1; min-width: 0; }
+.h-main b, .h-main small { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.h-main small, .h-num small { color: var(--txt-3); font-size: 11px; }
+.h-num { text-align: right; font-variant-numeric: tabular-nums; }
+.h-num b { display: block; font-size: 13px; }
+.tag { font-style: normal; font-size: 10px; font-weight: 600; margin-left: 4px; padding: 0 5px; border-radius: 5px; background: var(--surface-3); color: var(--txt-2); }
+.tag.ok { background: rgba(48, 209, 88, .14); color: var(--green); }
+.tag.ruim { background: rgba(255, 159, 10, .14); color: var(--orange); }
+table.renda { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; }
+.renda th { text-align: left; font-weight: 600; font-size: 11px; color: var(--txt-3); padding: 4px 6px; border-bottom: 1px solid var(--hair-2); }
+.renda td { padding: 6px; border-bottom: 1px solid var(--hair); vertical-align: top; }
+.renda td small { display: block; color: var(--txt-3); font-size: 10.5px; }
+.renda .n { text-align: right; }
+.renda tfoot td { border-bottom: 0; color: var(--txt-2); }
+.renda tfoot b { color: var(--accent); font-size: 13px; }

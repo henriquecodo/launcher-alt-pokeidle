@@ -40,7 +40,7 @@ O **Launcher Alt: PokeIdle** junta tudo em **uma única janela**: cada conta rod
 <p align="center">
   <img src="docs/destaques.jpg" alt="Destaques: 01 Melhores hunts com o top 5 do guia; 02 multi-contas e estatísticas com XP/h, sessão e RAM; 03 HUD com automações por ícone e painel de Ajustes" width="100%">
   <br>
-  <sub><b>01</b> Melhores hunts direto do guia · <b>02</b> Multi-contas e estatísticas em tempo real · <b>03</b> HUD inteligente e ajustes de desempenho</sub>
+  <sub><b>01</b> Onde caçar: as melhores hunts para o seu pokémon · <b>02</b> Multi-contas e estatísticas em tempo real · <b>03</b> HUD inteligente e ajustes de desempenho</sub>
 </p>
 
 | | |
@@ -52,14 +52,20 @@ O **Launcher Alt: PokeIdle** junta tudo em **uma única janela**: cada conta rod
 | **Captcha que se recupera** | Se aparecer "Não deu para confirmar que você não é um robô", a conta é recarregada sozinha (até 3 vezes em 5 min). |
 | **Layout inteligente** | 2×2 com 4 contas, principal em destaque com 3, lado a lado com 2. Também há "lado a lado" e "empilhado". |
 | **Zoom automático** | O jogo se ajusta sozinho ao tamanho de cada card, com a HUD inteira visível. Dá para ajustar à mão por conta. |
-| **Melhores hunts** 🏆 | Abra a ficha do seu pokémon no jogo (botão **"i"**) e clique no troféu do card: o launcher mostra o **top 5 de hunts** e até que nível você farma com segurança, usando a calculadora do [Guia HardToCapture](https://guiapokeidlehardtocapture.site/) com seu nível de treinador, VIP e evento preenchidos sozinhos. |
+| **Onde caçar?** 🏆 | Um clique no troféu (ou em **Onde caçar** na barra) e o launcher simula o **seu** pokémon em campo contra cada hunt liberada, com as fórmulas de combate do próprio jogo: top 10 por XP/h, abates/h e risco. O ritmo de cada hunt é **medido de verdade** na sua conta depois de 10 min caçando nela. Não roda nada em segundo plano: o cálculo só acontece quando você abre o painel. |
+| **Outland & renda** 💎 | Quanto cada conta tira por dia em **Bronze Boss Tokens** e **fragmentos** (Chave, Shiny Stone, Bicicleta) na Outland mais rápida para o seu pokémon, com o seu tier e bônus de loot — em Gemas (já sem a taxa do Mercado), em USDT e em dias até o saque mínimo. Os preços vêm do **Mercado da Comunidade**: abriu o mercado em qualquer conta, o launcher guarda o menor anúncio. Avisa quando você já libera um tier melhor. |
+| **Farm que não para** 🩺 | O farm roda no servidor enquanto a conexão de cada conta estiver viva. O launcher mantém essa conexão de pé com o launcher minimizado ou coberto, **vigia a conexão** (90 s sem resposta do servidor → reconecta; se não voltar → recarrega a conta), **reconecta tudo na volta do sono/hibernação**, destrava XP parado por 15 min e faz uma atualização preventiva a cada 6 h. Conta aberta em outro lugar nunca é tomada de volta sozinha. |
+| **Sem cena quando ausente** | PC ausente ou launcher minimizado: a cena das contas sai (bem menos RAM/CPU, a caça continua) e volta quando você volta. |
+| **Farmar com o Windows bloqueado** | Ligado por padrão. Bloqueou com **Win+L**? Enquanto estiver bloqueado, o PC não entra em espera sozinho (a tela apaga normalmente) e as contas seguem farmando, sem cena. Desbloqueou, volta tudo ao normal. |
+| **Não deixar o PC dormir** | Opcional (desligado). Em muitos notebooks, a tela apagar por ausência já põe o PC em espera e congela os programas — e o jogo não farma offline. Ligado, só a tela apaga e as contas seguem farmando a noite toda. |
+| **Animação a 30 FPS** | Desenha a cena na metade dos quadros: metade do esforço de CPU/GPU, e a caça não muda (o jogo move tudo pelo tempo, não pelo quadro). |
 | **XP/h em tempo real** | Por conta e somado, calculado sobre os últimos 10 minutos, mais o XP ganho na sessão. |
 | **Automações** | Liga/desliga *Lançar até capturar*, *Lançar sem parar*, *Revive*, *Poções* e *Voltar à hunt* — por conta ou em todas de uma vez. O launcher lembra suas escolhas e as reaplica quando a conta loga. |
-| **Ir para** | Abre Mapa, Market, Boss, Pokédex etc. em todas as contas (ou só na que está em foco). |
+| **Ir para** | Abre Mapa, Market, Boss, Pokedex, Mini Games etc. em todas as contas (ou só na que está em foco). |
 | **Modo otimizado e Night Mode** | Ficam sempre ligados em todas as contas (pode desligar nos Ajustes). |
-| **Modo Economia por conta** | Um clique no ícone de folha faz o jogo parar de desenhar o mapa naquela conta — a caça continua e o consumo de RAM/CPU cai bastante. Ideal para alts. |
+| **Modo Economia (sem cena)** | Um clique na folha liga ou desliga a cena daquela conta usando os **próprios botões do jogo** — ou em todas de uma vez, pelo menu Automações. Sem cena, o jogo para de desenhar, solta o mapa da memória e o servidor deixa de mandar o campo: a caça continua e o consumo cai bastante. Ideal para alts. |
 | **Monitor de memória** | RAM total e por conta, com reinício automático opcional de uma conta que passar do limite. |
-| **Bloqueio de rastreadores** | Corta os scripts de anúncio/analytics que a página carrega (Google Analytics, Tag Manager, Pixel do Facebook): menos RAM e mais privacidade. |
+| **Bloqueio de rastreadores** | Corta os scripts de anúncio/analytics (Google Analytics, Tag Manager, Pixel do Facebook): menos RAM e mais privacidade. O aviso de cookies do jogo é respondido com "Recusar" (só se você ainda não escolheu), e a faixa deixa de cobrir o rodapé. |
 | **Mudo de verdade** | Conta no mudo desliga o som dentro do jogo, que deixa de tocar e decodificar áudio. |
 | **Foco** | Expanda uma conta para a janela inteira; as outras continuam farmando. |
 | **À prova de queda** | Se o jogo de uma conta travar, só aquele card recarrega sozinho (com login e automações). O modo "pop-up" do jogo (Picture-in-Picture) fica desligado no launcher, porque derrubava a janela; no lugar dele o jogo mostra o cartão dentro da página. |
@@ -74,6 +80,39 @@ O **Launcher Alt: PokeIdle** junta tudo em **uma única janela**: cada conta rod
 O launcher nasceu de uma ideia simples — *"e se as 4 contas coubessem numa janela só?"* — e foi lapidado versão a versão, testado de verdade no farm, até chegar à 1.0. Cada etapa:
 
 <details open>
+<summary><b>💎 1.2 — Onde caçar e renda da Outland</b> · calculadora própria, sem extensão</summary>
+
+<br>
+
+- **Onde caçar? próprio:** a extensão /hunt parou de funcionar com o jogo novo, então o launcher ganhou o seu motor: simula o seu pokémon em cada hunt com as fórmulas do Pokepédia do jogo, importadas ao vivo dos módulos do próprio jogo, e mede o ritmo real de cada conta.
+- **Outland & renda:** Boss Tokens e fragmentos por dia, em Gemas e USDT, com os preços do Mercado da Comunidade.
+- **Jogo v1.401:** "Ir para" acompanha os rótulos novos (Pokedex, Mini Games). Sai a extensão e o download diário da Chrome Web Store.
+</details>
+
+<details>
+<summary><b>🩹 1.1.1 — Hotfix: farm que não para</b> · PC ausente não derruba mais as contas</summary>
+
+<br>
+
+- **O problema:** em notebooks com *Modern Standby*, ficar ausente faz a tela apagar e o Windows entrar em espera, congelando os programas: a conexão cai e o servidor para a hunt (o jogo não tem farm offline).
+- **A correção:** o launcher **vigia a conexão** de cada conta e reconecta (ou recarrega) sozinho, **reconecta tudo na volta da espera** e oferece **"Não deixar o PC dormir"** para farmar ausente com a tela apagada.
+- **Menos RAM:** "Sem cena quando ausente" e o /hunt opcional (substituído pela calculadora própria na 1.2).
+</details>
+
+<details>
+<summary><b>🔧 1.1 — Acompanhando o jogo</b> · depois do lançamento</summary>
+
+<br>
+
+O jogo atualizou e o launcher foi junto:
+
+- **/hunt oficial embutido:** o guia virou a extensão oficial *"/hunt for PokeIdle"*, que passou a rodar dentro das contas (removida na 1.2, quando parou de funcionar).
+- **Cena sem bug:** ligar e desligar o Modo Economia às vezes travava até reiniciar o launcher. Agora o launcher usa os botões do próprio jogo e não briga mais com ele. Também dá para tirar a cena de todas as contas de uma vez.
+- **Saúde das contas:** destrava sozinho a conta cujo XP parou e faz uma atualização preventiva a cada 6 h — sempre só quando você não está mexendo nela.
+- **Animação a 30 FPS** e **aviso de cookies respondido sozinho** (com os rastreadores bloqueados).
+</details>
+
+<details>
 <summary><b>⭐ 1.0 — Lançamento</b> · a versão pública</summary>
 
 <br>
@@ -91,7 +130,7 @@ Tudo o que veio antes, reunido numa versão só — com a base testada numa **no
 </details>
 
 <details>
-<summary><b>🏆 0.8 — Melhores hunts</b> · o guia dentro do launcher</summary>
+<summary><b>🏆 0.8 — Melhores hunts</b> · o guia dentro do launcher <i>(substituído pelo /hunt oficial na 1.1)</i></summary>
 
 <br>
 
@@ -193,10 +232,10 @@ Os executáveis das releases são gerados pelo [GitHub Actions](.github/workflow
 
 ### Resumo
 
-- **100% local.** Não existe servidor do launcher. Sem telemetria, sem analytics, sem anúncios, sem atualização automática.
-- **O launcher não tem servidor próprio.** Quem acessa a internet é a página do jogo dentro de cada card — exatamente o que aconteceria no seu navegador — e, só quando você pede **Melhores hunts**, a página do guia.
+- **100% local.** Não existe servidor do launcher. Sem telemetria, sem analytics, sem anúncios. O launcher não se atualiza sozinho e não baixa nada.
+- **O launcher não tem servidor próprio.** Quem acessa a internet é a página do jogo dentro de cada card — exatamente o que aconteceria no seu navegador.
 - **Sua senha nunca passa pelo launcher.** Você digita o login direto na página oficial do jogo. O código não lê campos de e-mail ou senha, e não guarda credenciais.
-- **Código aberto e pequeno.** São cerca de 1.400 linhas em HTML/CSS/JavaScript puro, sem frameworks e **sem nenhuma dependência em tempo de execução** além do próprio Electron.
+- **Código aberto e pequeno.** São cerca de 2.100 linhas em HTML/CSS/JavaScript puro, sem frameworks e **sem nenhuma dependência em tempo de execução** além do próprio Electron.
 
 ### Com o que o launcher conversa
 
@@ -204,8 +243,7 @@ Os executáveis das releases são gerados pelo [GitHub Actions](.github/workflow
 |---|---|---|
 | `pokeidle.io` | A página do jogo dentro de cada card | Jogar, como no navegador |
 | Serviços que a página do jogo carrega (ex.: captcha Cloudflare Turnstile) | A página do jogo | Login e funcionamento normal do jogo |
-| `guiapokeidlehardtocapture.site` | Uma página escondida, aberta só quando você clica em **Melhores hunts** e fechada logo depois | Calcular as hunts. A ficha é colada na calculadora da página, que roda no seu computador — conferimos que a ficha **não** é enviada ao servidor do guia (a página só faz um ping de "usuários online"). Essa sessão é separada e não tem acesso às suas contas |
-| Botão Guia e links externos | **Seu navegador padrão** | Abrem fora do launcher |
+| Links externos | **Seu navegador padrão** | Abrem fora do launcher |
 | Google Analytics, Google Tag Manager, DoubleClick, Pixel do Facebook | Ninguém — **bloqueados** por padrão | São rastreadores que a página do jogo carrega; não fazem parte da jogabilidade. Dá para desligar o bloqueio nos Ajustes |
 
 Nenhum card consegue sair do Pokéidle: qualquer navegação para outro site é bloqueada, e links externos vão para o seu navegador.
@@ -221,8 +259,13 @@ Só estes elementos, a cada 2 segundos ([`src/preload/game-preload.js`](src/prel
 | `#tr-gold` | Exibir ouro |
 | `#auto-ball-captura`, `#auto-ball-sem-parar`, `#auto-revive`, `#auto-potion`, `#auto-voltar-hunt` | Saber se cada automação está ligada |
 | visibilidade de `#login` | Saber se a conta está logada |
-| `#tr-ativos` (bônus ativos) e o banner "EVENTO! +N% XP" | Saber se há VIP e evento, para a conta das Melhores hunts |
-| A ficha do pokémon, **só quando você a abre** (tela com Stats atuais e Stats-base) | Melhores hunts — é o mesmo texto que você copiaria com Ctrl+A / Ctrl+C para colar no guia |
+| a classe `modo-economia` da página | Saber se a cena está ligada ou desligada |
+| se você clicou/digitou na conta (só o horário, nunca o conteúdo) | Nunca recarregar sozinho enquanto você usa a conta |
+| o horário da última mensagem do servidor e se a conexão está aberta (nunca o conteúdo) | Vigiar a conexão: é ela que mantém o farm |
+| visibilidade do aviso "conta aberta em outro lugar" (`#sessao-tomada`) | Nunca tomar a conta de volta sozinho |
+| a prancheta de sessão do próprio jogo (`sessao-hunt:<nick>` no armazenamento local: abates, tempo, drops) | Medir o ritmo real (abates/h) e os drops de cada hunt |
+| os preços "A partir de" do **Mercado da Comunidade**, só enquanto ele está aberto na tela | Calcular a renda da Outland |
+| as mensagens `welcome` e `estado` que o servidor manda para a página (só **escuta**, nunca envia nem altera): seu nível, hunt atual, tier da Outland, bônus e os stats dos seus pokémons, mais a tabela de hunts, tipos e chances de drop | Calcular onde caçar — fica só na memória da própria conta |
 
 Esses dados vão apenas da página para a interface do launcher, na sua máquina.
 
@@ -230,11 +273,17 @@ Esses dados vão apenas da página para a interface do launcher, na sua máquina
 
 | Ação | Quando |
 |---|---|
-| Grava `cfg-otimizado`, `cfg-night`, `cfg-economia` e `cfg-som` no armazenamento local do jogo | Ao carregar a conta e quando você muda o mudo/economia, conforme seus Ajustes (as mesmas chaves que o menu de Configurações do jogo usa) |
+| Mantém `cfg-otimizado` e `cfg-night` ligados no armazenamento local do jogo | O tempo todo, se "Sempre Modo otimizado / Night Mode" estiver ligado (as mesmas chaves do menu de Configurações do jogo) |
+| Grava `cfg-som` | Ao abrir a conta e quando você usa o mudo do launcher — depois disso quem manda é o jogo |
+| Clica em "Economia" / "Ligar a cena" do próprio jogo | Só quando você usa a folha ou o "Modo Economia" das Automações |
+| Responde "Recusar" no aviso de cookies | Só com "Bloquear rastreadores" ligado e se você ainda não escolheu nada naquela conta |
+| Limita a animação a 30 FPS e desliga o pop-up (Picture-in-Picture) | Ao abrir a conta (o 30 FPS pode ser desligado nos Ajustes) |
+| Dispara os eventos "rede voltou" / "janela em foco" na página | Quando a conexão parece caída ou o PC volta do sono — é o que faz o jogo reconectar na hora |
 | Guarda uma cópia da sessão do jogo (`sessao` → `__launcher_sessao`) | Enquanto a conta está logada, para devolvê-la se o jogo a descartar por falha passageira na abertura. Fica no mesmo armazenamento da conta, no seu PC. Se você clicar em **Sair** no jogo, a cópia é apagada e o launcher não reloga sozinho |
-| Recarrega a conta | Quando o captcha falha ou a sessão precisa ser devolvida (no máximo 3 vezes a cada 5 min) |
+| Recarrega a conta | Quando o captcha falha ou a sessão precisa ser devolvida (no máximo 3 vezes a cada 5 min); quando o XP fica parado por 15 min ou na atualização preventiva (esses dois só se você não mexeu na conta nos últimos 10 min); e se passar do limite de RAM escolhido |
 | Clica nas caixas de automação do próprio jogo | Só quando você liga/desliga uma automação, ou ao logar, para reaplicar o que você escolheu |
 | Clica nos botões de aba (Mapa, Market...) | Só quando você usa "Ir para" |
+| Roda o motor "Onde caçar?" ([`src/game/hunt-engine.js`](src/game/hunt-engine.js)), que importa os módulos de regras do jogo (`pokeidle.io/shared/*.mjs`) e o catálogo de espécies | Só quando você abre o painel; o catálogo sai da memória 3 min depois |
 
 O launcher **não** joga por você: ele só aciona opções que já existem na interface do jogo.
 
@@ -243,21 +292,21 @@ O launcher **não** joga por você: ele só aciona opções que já existem na i
 Seguindo o [checklist de segurança do Electron](https://www.electronjs.org/docs/latest/tutorial/security):
 
 - `contextIsolation` ligado, `nodeIntegration` desligado e **sandbox** ativa na interface e em todas as contas.
-- Todo `<webview>` é validado pelo processo principal (`will-attach-webview`): só é criado se for o jogo (`https://pokeidle.io`, em uma das 4 partições de conta, com o preload do launcher) ou o guia (`https://guiapokeidlehardtocapture.site`, em uma partição própria e **sem** preload). Cada um fica travado no próprio site.
+- Todo `<webview>` é validado pelo processo principal (`will-attach-webview`): só é criado se for o jogo (`https://pokeidle.io`, em uma das 4 partições de conta), sempre com o preload do launcher, e fica travado no Pokéidle.
 - A interface do launcher não navega nem abre janelas; uma **Content-Security-Policy** restritiva (`default-src 'none'`) bloqueia scripts e conteúdos externos.
 - Permissões sensíveis (câmera, microfone, localização, notificações etc.) são **negadas**; só tela cheia e cópia para a área de transferência são permitidas.
-- A ponte entre interface e sistema expõe só **5 canais IPC**: carregar/salvar configuração, abrir link https no navegador, ler uso de memória e ler preferências do jogo.
+- A ponte entre interface e sistema expõe só **7 canais IPC**: carregar/salvar configuração, abrir link https no navegador, ler uso de memória, ler preferências do jogo, ler o código do motor "Onde caçar?" (um arquivo do próprio launcher) e ligar/desligar o "não deixar o PC dormir".
 - Apenas uma instância do launcher roda por vez.
 
 **Sobre o user-agent:** com a identificação padrão do Electron, o captcha da Cloudflare recusa o login. Por isso cada conta se apresenta como um Chrome comum da mesma versão do Chromium embutido. Isso é feito às claras em [`src/main.js`](src/main.js).
 
 ### Onde ficam os seus dados
 
-Tudo em `%APPDATA%\Launcher Alt - PokeIdle\`:
+Tudo em `%APPDATA%\launcher-alt-pokeidle\`:
 
 | Caminho | Conteúdo |
 |---|---|
-| `launcher-config.json` | Nomes dos cards, zoom, quantidade de contas, automações escolhidas e ajustes |
+| `launcher-config.json` | Nomes dos cards, zoom, quantidade de contas, automações escolhidas, ajustes, ritmo/drops medidos por hunt e os últimos preços do Mercado |
 | `Partitions\conta1` … `conta4` | Sessão de cada conta (cookies e dados do site, incluindo o token de login que o próprio jogo guarda e a cópia de segurança dele), igual a um perfil de navegador |
 
 > O token de login fica no seu disco, como acontece em qualquer navegador com "manter conectado". Quem tiver acesso à sua conta do Windows poderia usá-lo. Em um PC compartilhado, desligue **Manter contas logadas** nos Ajustes ou clique em **Sair** no jogo ao terminar.
@@ -273,9 +322,14 @@ Exemplo do `launcher-config.json`:
   "forceNight": true,
   "keepLogin": true,
   "blockTrackers": true,
+  "fps30": true,
+  "watchdog": true,
+  "autoRefreshH": 6,
   "accounts": [
-    { "name": "MeuNick", "zoom": null, "desired": { "auto-potion": true }, "eco": false, "muted": true }
-  ]
+    { "name": "MeuNick", "zoom": null, "desired": { "auto-potion": true }, "muted": true,
+      "ritmo": { "slug-da-hunt": { "kph": 812, "at": 1762430000000 } } }
+  ],
+  "precos": { "at": 1762430000000, "itens": { "bossToken": { "gemas": 3 }, "fragChave": { "gemas": 192 } } }
 }
 ```
 
@@ -299,30 +353,47 @@ flowchart LR
   end
   GAME(["🌐 pokeidle.io"])
 
-  UI <-- "IPC (5 canais)" --> MAIN
+  UI <-- "IPC (7 canais)" --> MAIN
   MAIN --- CFG
   UI -- "webview" --> CARDS
-  CARDS -- "estado: XP, nick, automações" --> UI
+  CARDS -- "estado: XP, nick, automações, cena" --> UI
   CARDS == "HTTPS — o próprio jogo" ==> GAME
 ```
 
 | Arquivo | Papel |
 |---|---|
 | [`src/main.js`](src/main.js) | Processo principal: janela, sessões isoladas, regras de segurança, configuração, medição de RAM e economia de recursos |
-| [`src/preload/ui-preload.js`](src/preload/ui-preload.js) | Ponte mínima (4 funções) entre a interface e o processo principal |
-| [`src/preload/game-preload.js`](src/preload/game-preload.js) | Roda dentro de cada conta: aplica preferências do jogo, mantém a conta logada, recupera o captcha e informa XP, nick, nível e automações |
-| [`src/renderer/renderer.js`](src/renderer/renderer.js) | Interface: cards, XP/h, automações, "Ir para", zoom automático, RAM e ajustes |
+| [`src/game/hunt-engine.js`](src/game/hunt-engine.js) | Motor "Onde caçar?": roda dentro da conta só quando você abre o painel, importa as regras do jogo e simula o seu pokémon em cada hunt |
+| [`src/renderer/onde-cacar.js`](src/renderer/onde-cacar.js) | Painel "Onde caçar?" e "Outland & renda": mede o ritmo real, guarda os preços do Mercado e mostra o resultado |
+| [`src/preload/ui-preload.js`](src/preload/ui-preload.js) | Ponte mínima (7 funções) entre a interface e o processo principal |
+| [`src/preload/game-preload.js`](src/preload/game-preload.js) | Roda dentro de cada conta: aplica preferências do jogo, 30 FPS, mantém a conta logada, recupera o captcha, escuta os dados do jogo para o "Onde caçar?" e informa XP, nick, nível, automações, cena, sessão e preços do Mercado |
+| [`src/renderer/renderer.js`](src/renderer/renderer.js) | Interface: cards, XP/h, automações, cena, "Ir para", zoom automático, RAM, saúde das contas e ajustes |
 | [`src/renderer/index.html`](src/renderer/index.html) · [`style.css`](src/renderer/style.css) | Estrutura e visual |
-| [`src/renderer/hunts.js`](src/renderer/hunts.js) | Melhores hunts: consulta a calculadora do guia escondida e mostra o top 5 |
 | [`src/renderer/icons.js`](src/renderer/icons.js) | Ícones vetoriais (traço, estilo Lucide) |
 
-### Melhores hunts
+### Onde caçar?
 
-1. Você abre a ficha de um pokémon no jogo (botão **"i"**). O launcher guarda o texto dela.
-2. Ao clicar no troféu do card, ele abre o Guia HardToCapture **escondido**, cola a ficha na aba *Onde caçar*, preenche nível do treinador, VIP e evento e lê a tabela.
-3. Mostra o top 5 (XP/h, dinheiro/h, nível, região) e até que nível o pokémon farma com segurança — e **fecha o guia**, devolvendo a memória.
+1. Enquanto a conta joga, o launcher só **escuta** as mensagens que o servidor já manda para a página e guarda o essencial (nível, hunt atual, tier da Outland, bônus, stats dos pokémons, tabela de hunts e chances de drop).
+2. Ao clicar no troféu, o motor é injetado na conta e importa os **módulos de regras do próprio jogo** (`pokeidle.io/shared/*.mjs`) e o catálogo de espécies — então acompanha as atualizações do jogo sozinho.
+3. Para cada hunt liberada, simula 30 abates seguidos do seu pokémon com a fórmula de dano do Pokepédia (STAB, efetividade com a ampliação da hunt, cooldown de cada golpe, Investida, IV de Velocidade, HP e dano multiplicados dos selvagens) e soma o tempo entre um abate e outro.
+4. Esse tempo entre abates (achar o próximo, respawn) é **medido** na sua conta: depois de 10 min na mesma hunt, o launcher compara a prancheta de sessão do jogo e guarda os abates/h reais. Hunts sem medida usam a mediana das medidas da conta (ou 3,3 s, até a primeira medida).
+5. XP e ouro por abate saem das funções de recompensa do jogo, com os seus multiplicadores (VIP, evento, guild, boosts, dia sazonal).
 
-Os números são **sempre os do guia**: quando o guia ou o jogo mudam, o resultado acompanha, sem precisar atualizar o launcher. O resultado fica guardado por 30 min (ou até a ficha ou o nível mudarem). Se um dia o guia mudar de formato e a leitura falhar, o launcher avisa e oferece abrir o guia no navegador.
+### Outland & renda
+
+- Drops por abate na Outland = chance publicada pelo jogo × multiplicador do tier (×1 a ×8, pelo nível do treinador) × (1 + bônus de loot). Hoje: Bronze Boss Token 0,05% e cada fragmento 0,0005% por abate, no tier 1.
+- Renda/dia = abates/h × 24 × chance × preço (o menor anúncio do Mercado da Comunidade), já sem a taxa do Mercado (13% até 500 Gemas, 10% até 5.000, 7,5% acima). Em USDT pelo valor de saque do jogo (1 Gema = 0,009 USDT).
+- Os fragmentos são raríssimos: o grosso da renda costuma vir dos Boss Tokens, e o painel mostra quantos dias leva para cair um fragmento. É estimativa, não renda garantida — o painel também mostra o que caiu de verdade em cada hunt.
+- **Para render mais:** a Outland mais rápida para o seu pokémon (o painel ordena por abates/h), o tier mais alto que o seu nível libera (troque no Mapa) e todas as contas farmando.
+
+### Saúde das contas
+
+A cada minuto o launcher olha cada conta. Se você **não mexeu nela nos últimos 10 min**:
+
+- **Conta parada:** o XP vinha subindo e está parado há 15 min (conexão presa, tela travada) → recarrega. Depois disso, o vigia só volta a valer quando o XP subir de novo — uma conta parada de propósito no Centro não fica recarregando sem parar.
+- **Atualização preventiva:** a cada N horas (padrão: 6 h; dá para mudar ou desligar) → recarrega, para devolver a memória que a página acumula. As contas têm 3 min de diferença entre si, então nunca recarregam juntas.
+
+O recarregamento mantém o login e reaplica as automações escolhidas.
 
 ### Cálculo do XP/h
 
@@ -335,13 +406,16 @@ Rodar quatro jogos ao mesmo tempo pesa. O launcher atua em várias frentes:
 - **Contas desligadas não existem:** reduzir de 4 para 3 contas encerra o processo da 4ª e libera a memória na hora.
 - **Abertura escalonada:** as contas abrem uma a cada 3 s, evitando o pico de tudo carregando junto.
 - **Chromium em modo econômico** (`enable-low-end-device-mode`) e limite de heap JavaScript de 1 GB por conta.
-- **Modo otimizado** sempre ligado e **Modo Economia** opcional por conta.
+- **Modo otimizado** sempre ligado e **Modo Economia** (sem cena) por conta ou em todas de uma vez — o maior corte de memória que existe: o jogo para de desenhar, solta o mapa e os sprites e o servidor para de mandar o campo.
+- **Animação a 30 FPS:** a cena é desenhada na metade dos quadros. Como o jogo move tudo pelo tempo entre quadros, a caça não muda.
+- **Atualização preventiva** a cada 6 h (padrão), devolvendo a memória que a página acumula com o tempo.
 - **Rastreadores bloqueados:** nos testes com 4 contas abertas, cerca de 70 MB (~5%) a menos de memória privada só na tela de login; com as contas jogando, os rastreadores trabalham mais e a economia tende a crescer.
 - **Mudo de verdade:** conta no mudo desliga o som do jogo, que deixa de carregar e tocar áudio.
 - **Cache HTTP limpo a cada 30 min** (sem apagar login).
 - **Recursos desnecessários do Chromium desligados:** tradução, transmissão de mídia, autofill, cache de páginas anteriores (back-forward cache) e corretor ortográfico.
 - **Reinício automático** opcional de uma conta que passe do limite de RAM escolhido (o login e as automações voltam sozinhos).
-- **O farm não para minimizado:** a limitação de timers em segundo plano do Chromium é desligada, para o jogo seguir no ritmo normal mesmo com a janela minimizada ou coberta.
+- **O farm não para minimizado:** a limitação de timers de página escondida do Chromium (inclusive a "intensiva", que após 5 min segura os timers em 1 por minuto) e o modo eficiência do Windows são desligados — o ping do jogo segue a cada 25 s. Testado: 8 min minimizado, timers em dia.
+- **Sem cena quando ausente:** ausente ou minimizado, as contas ficam sem cena (o maior corte de memória que existe) e voltam ao normal quando você volta.
 
 ## 🛠️ Compilar a partir do código
 
@@ -370,9 +444,27 @@ Não. O Google bloqueia login dentro de aplicativos embutidos, e o launcher impe
 </details>
 
 <details>
-<summary><b>Melhores hunts diz "abra a ficha do seu pokémon". Como?</b></summary>
+<summary><b>Cliquei no troféu e apareceu um aviso. Por quê?</b></summary>
 
-No jogo, clique no **"i"** ao lado do pokémon (a tela com *Stats atuais* e *Stats-base da espécie*). O launcher lê sozinho e avisa "ficha lida". Trocou de pokémon ou ele subiu muito de nível? Abra a ficha de novo.
+O cálculo precisa da conta logada, conectada e com um pokémon **em campo**. Logo depois de abrir a conta, espere alguns segundos ela conectar. Se o aviso continuar, atualize a conta (↻) e tente de novo.
+</details>
+
+<details>
+<summary><b>O XP/h do painel bate com o do jogo?</b></summary>
+
+Nas hunts marcadas como **medido**, o ritmo é o da sua conta, então tende a bater. Nas **estimado**, o motor usa o tempo típico entre abates da conta; fique 10 min numa hunt e ela passa a ser medida. Golpes especiais com efeitos raros e eventos fora do comum podem fazer a conta real variar um pouco.
+</details>
+
+<details>
+<summary><b>E a extensão /hunt?</b></summary>
+
+Ela foi embutida na 1.1, mas parou de funcionar com as atualizações do jogo. Na 1.2 o launcher passou a ter o seu próprio motor, feito sobre os mesmos módulos de regras do jogo, e a extensão saiu — junto com o download diário dela.
+</details>
+
+<details>
+<summary><b>Ligar/desligar a cena travava. Ainda acontece?</b></summary>
+
+Não. Até a 1.0 o launcher regravava a escolha da cena a cada 2 segundos e brigava com o botão "Ligar a cena" do jogo. Desde a 1.1 quem guarda a escolha é o jogo, e o launcher só aperta os botões dele.
 </details>
 
 <details>
@@ -394,9 +486,17 @@ O launcher tenta resolver sozinho, recarregando a conta quando o captcha falha. 
 </details>
 
 <details>
-<summary><b>O farm continua com o launcher minimizado?</b></summary>
+<summary><b>O farm continua com o launcher minimizado ou com a tela bloqueada?</b></summary>
 
-Sim. O launcher desliga a pausa de segundo plano do Chromium para isso. Só não feche a janela.
+Sim. O launcher desliga a economia de segundo plano do Chromium e do Windows para a conexão de cada conta seguir viva, e vigia a conexão. Só não feche a janela.
+</details>
+
+<details>
+<summary><b>E com o PC dormindo (suspenso/hibernado)?</b></summary>
+
+Aí nenhum programa comum roda — o Windows congela tudo e a conexão cai. Atenção: em muitos notebooks (os com *Modern Standby*) **a tela apagar por ausência já é o PC dormindo**. O Pokéidle **não tem farm offline**: o servidor segura a hunt por só 90 s depois que a conta desconecta. O que o launcher faz é **reconectar todas as contas assim que o PC acorda**.
+
+Para farmar ausente, o jeito mais simples é **bloquear o Windows (Win+L)**: com **"Farmar com o Windows bloqueado"** (ligado por padrão), o PC não entra em espera enquanto estiver bloqueado — a tela apaga e as contas seguem. Se quiser que ele nunca durma sozinho, nem desbloqueado, ligue **"Não deixar o PC dormir"**.
 </details>
 
 <details>
@@ -408,7 +508,7 @@ Executáveis novos e sem assinatura digital às vezes geram alertas genéricos. 
 <details>
 <summary><b>Como saio de uma conta?</b></summary>
 
-Pelo próprio menu do jogo, dentro do card. Para apagar tudo de uma vez, feche o launcher e apague a pasta `%APPDATA%\Launcher Alt - PokeIdle\`.
+Pelo próprio menu do jogo, dentro do card. Para apagar tudo de uma vez, feche o launcher e apague a pasta `%APPDATA%\launcher-alt-pokeidle\`.
 </details>
 
 ## 🤝 Contribuindo
