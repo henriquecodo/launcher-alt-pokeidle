@@ -4,6 +4,15 @@ Todas as mudanças relevantes deste projeto ficam registradas aqui.
 O formato segue o [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/) e o versionamento segue o [SemVer](https://semver.org/lang/pt-BR/).
 As versões 0.x foram as etapas de desenvolvimento antes do lançamento público, todas em 2026-10-06.
 
+## [1.3.0] — 2026-11-06 · Caça shiny
+
+### Adicionado
+- **Caça shiny** (terceira aba do "Onde caçar?"): a melhor hunt para capturar um shiny com o pokémon em campo e a chance de conseguir em 1, 7 e 30 dias, com a **Beast Ball** e com a **melhor bola que se compra com ouro**. Segue as regras do Pokepédia: o brilho é sorteado em cada bola (uma por corpo, `chanceShiny` do jogo), o shiny que escapa vai embora com o corpo, a captura depende do estágio evolutivo da espécie (1º estágio é a mais fácil) e na Outland o shiny não rola. Mostra o tempo médio com Capture Boost e Shiny Secret Lure, as bolas por dia e o custo em ouro comparado com o ouro que a hunt dá.
+- A chance de captura usa as funções do próprio jogo (`captura-degrau.mjs` e `teto-captura.mjs`) e bate com a tabela do Pokepédia (Beast Ball: 2,93% · 2,35% · 1,88%).
+
+### Alterado
+- Motor "Onde caçar?" na versão 2: uma conta com o motor antigo já carregado recebe o novo sozinha.
+
 ## [1.2.0] — 2026-11-06 · Onde caçar e renda da Outland
 
 O jogo chegou à v1.401 e a extensão "/hunt for PokeIdle" parou de funcionar. O launcher passa a ter a sua própria calculadora.

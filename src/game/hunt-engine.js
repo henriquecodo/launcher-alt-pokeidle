@@ -16,7 +16,7 @@
  * e, sem medida, de um padrão. Por isso cada linha diz se o ritmo é "medido" ou "estimado".
  */
 (() => {
-  if (window.__launcherHunt) return;
+  if ((window.__launcherHunt?.versao ?? 0) >= 2) return;
   const SYM = Symbol.for('launcher.jogo'); // o coletor do launcher (game-preload) guarda aqui o welcome + estado
 
   const REGRA = {
@@ -32,14 +32,15 @@
   let modulos = null;
   async function carregarModulos() {
     if (modulos) return modulos;
-    const [outland, planilhas, baseOutland, evol, ajustes, especiais, orre, megas, cooldown, nota, mistico, recompensa, tipos, analyser, sazonal] =
+    const [outland, planilhas, baseOutland, evol, ajustes, especiais, orre, megas, cooldown, nota, mistico, recompensa, tipos, analyser, sazonal, degrau, teto, formas] =
       await Promise.all([
         'shared/outland.mjs', 'shared/golpes-planilhas.mjs', 'shared/herdar-base-outland.mjs', 'shared/evolucoes-cruzadas.mjs',
         'shared/ajustes-especie-espelho.mjs', 'shared/golpes-especiais.mjs', 'shared/herdar-golpes-orre.mjs', 'shared/megas.mjs',
         'shared/cooldown-golpes.mjs', 'shared/nota-pokemon.mjs', 'shared/mistico.mjs', 'shared/recompensa-hunt.mjs',
         'shared/tipo-efetividade.mjs', 'hunt-analyser.mjs', 'shared/dia-sazonal.mjs',
+        'shared/captura-degrau.mjs', 'shared/teto-captura.mjs', 'shared/formas.mjs',
       ].map(imp));
-    modulos = { outland, planilhas, baseOutland, evol, ajustes, especiais, orre, megas, cooldown, nota, mistico, recompensa, tipos, analyser, sazonal };
+    modulos = { outland, planilhas, baseOutland, evol, ajustes, especiais, orre, megas, cooldown, nota, mistico, recompensa, tipos, analyser, sazonal, degrau, teto, formas };
     return modulos;
   }
 
@@ -77,6 +78,8 @@
     }
     m.orre.herdarGolpesOrre(lista);
     for (const mega of m.megas.criarEspeciesMega(lista) ?? []) especies.set(mega.pokeId, mega);
+    // Estágio evolutivo de cada espécie (o "Nível ao capturar" 20 · 40 · 100), que decide a chance de captura.
+    especies.estagios = m.teto.montarEstagiosEvolutivos(lista, (id) => especies.get(id));
     catalogo = especies;
     // ~20 MB de catálogo: solto 3 min depois do último cálculo, para não pesar na conta.
     clearTimeout(soltarCatalogo);
@@ -282,6 +285,7 @@
       linhas.push(linha);
     }
     const seguras = linhas.filter((l) => l.risco !== 'morre');
+    const shiny = cacaShiny(m, especies, w, eu, agora, seguras, max0(opcoes));
     const max = opcoes.max ?? 10;
     return {
       pokemon: { nome: espPk.name, nivel: pk.level, tipos: pk.tipos },
@@ -295,8 +299,90 @@
       outlands: seguras.filter((l) => l.area === 'outland').sort((x, y) => y.kph - x.kph).slice(0, max),
       atual: linhas.find((l) => l.slug === eu.huntSlug) ?? null,
       total: linhas.length,
+      shiny,
     };
   }
 
-  window.__launcherHunt = { calcular, versao: 1 };
+  const max0 = (o) => o.max ?? 10;
+
+  /**
+   * CAÇA SHINY — pelas regras do capítulo Shiny e Captura do Pokepédia do jogo:
+   *   · o brilho é sorteado no ARREMESSO da bola (chanceShiny, a mesma para toda espécie com forma shiny);
+   *   · é UMA bola por corpo, e o shiny que escapa vai embora com o corpo → shiny capturado = chanceShiny × captura;
+   *   · captura num corpo caído = base × (eficiência da bola ÷ fator do estágio) × 1,4, entre o piso e o teto;
+   *   · Capture Boost multiplica a captura (respeitando o teto) e o Shiny Secret Lure multiplica o shiny;
+   *   · na Outland o shiny não rola.
+   * Taxa (Poisson) por hora: λ = abates/h × Σ peso × [tem shiny] × chanceShiny × captura.
+   */
+  function cacaShiny(m, especies, w, eu, agora, seguras, max) {
+    const chance = Number(w.chanceShiny) || 0;
+    const bolas = (w.catalogoBolas ?? []).filter((b) => Number(b.catchRate) > 0);
+    if (!chance || !bolas.length) return { erro: 'sem-dados' };
+    const cap = { base: 0.0075, piso: 0.003, teto: 0.1, raridadeDiv: 17, precoSemPreco: 6.5e9, ...(w.captura ?? {}) };
+    const porRate = (a, b) => Number(b.catchRate) - Number(a.catchRate);
+    const topo = [...bolas].sort(porRate).find((b) => /beast/i.test(b.nome)) ?? [...bolas].sort(porRate)[0];
+    const ouro = [...bolas].filter((b) => b.compravel && Number(b.priceGold) > 0).sort(porRate)[0] ?? null;
+    const shinyDex = new Set((w.shinyDex ?? []).map(String));
+    const chaves = m.degrau.chavesEmHunt(w.hunts);
+    const dexBase = (id) => (id >= 13000 ? id % 1000 : m.formas.dexBaseDaForma?.(id) ?? id);
+    const temShiny = (id) => !m.outland.isOutlandPokeId?.(id) && shinyDex.has(String(dexBase(id)));
+    const multDe = (chave) => (agora < (eu.loja?.boosts?.[chave] ?? 0) ? (w.tiposBoost ?? []).find((b) => b.chave === chave)?.mult ?? 2 : 1);
+    const multBoost = (chave) => (w.tiposBoost ?? []).find((b) => b.chave === chave)?.mult ?? 2;
+    const ativos = { captura: multDe('captura'), shiny: multDe('shiny') };
+    const capturaDe = (esp, rate, multCap) => {
+      if (rate >= 255) return 1;
+      const preco = esp.priceNpc > 0 ? esp.priceNpc : cap.precoSemPreco;
+      const fator = m.degrau.fatorDeCaptura({
+        tetoCaptura: m.teto.tetoDeCaptura(esp.pokeId, especies.estagios), peloDegrau: m.degrau.capturaPeloDegrau(esp.pokeId, chaves),
+        preco, raridadeDiv: cap.raridadeDiv ?? 17, porDegrau: cap.porDegrau,
+      });
+      const p = Math.max(cap.piso, Math.min(cap.teto, cap.base * (rate / fator) * 1.4));
+      return Math.min(cap.teto, p * multCap);
+    };
+    // Os quatro cenários de boost, para as duas bolas: λ por hora.
+    const CENARIOS = { nenhum: [1, 1], captura: [multBoost('captura'), 1], lure: [1, multBoost('shiny')], ambos: [multBoost('captura'), multBoost('shiny')] };
+    const linhas = [];
+    for (const l of seguras) {
+      if (l.area === 'outland') continue;
+      const h = (w.hunts ?? []).find((x) => x.slug === l.slug);
+      const total = (h?.especies ?? []).reduce((s, e) => s + (Number(e.pontos) || 0), 0) || 1;
+      let fracShiny = 0, frac1 = 0;
+      const termos = [];
+      for (const e of h?.especies ?? []) {
+        const esp = especies.get(e.pokeId);
+        if (!esp) continue;
+        const peso = (Number(e.pontos) || 0) / total;
+        if (!temShiny(esp.pokeId)) continue;
+        fracShiny += peso;
+        if (m.teto.tetoDeCaptura(esp.pokeId, especies.estagios) === 20) frac1 += peso;
+        termos.push({ esp, peso });
+      }
+      if (!fracShiny) continue;
+      const lambda = (bola, multCap, multShiny) => !bola ? 0
+        : l.kph * chance * multShiny * termos.reduce((s, t) => s + t.peso * capturaDe(t.esp, Number(bola.catchRate), multCap), 0);
+      const tabela = (bola) => Object.fromEntries(Object.entries(CENARIOS).map(([k, [c, s]]) => [k, lambda(bola, c, s)]));
+      linhas.push({
+        slug: l.slug, nome: l.nome, regiao: l.regiao, nivel: l.nivel, kph: l.kph, ritmo: l.ritmo, risco: l.risco, ouroH: l.ouroH,
+        fracShiny: +fracShiny.toFixed(3), frac1oEstagio: +frac1.toFixed(3),
+        vistosH: l.kph * chance * ativos.shiny * fracShiny,
+        topo: { agora: lambda(topo, ativos.captura, ativos.shiny), ...tabela(topo) },
+        ouro: ouro ? { agora: lambda(ouro, ativos.captura, ativos.shiny), ...tabela(ouro) } : null,
+        custoOuroH: ouro ? l.kph * Number(ouro.priceGold) : null,
+        especies: termos.sort((a, b) => b.peso - a.peso).slice(0, 4).map((t) => ({
+          nome: t.esp.name, peso: +t.peso.toFixed(3), teto: m.teto.tetoDeCaptura(t.esp.pokeId, especies.estagios),
+          capTopo: capturaDe(t.esp, Number(topo.catchRate), ativos.captura), capOuro: ouro ? capturaDe(t.esp, Number(ouro.catchRate), ativos.captura) : null,
+        })),
+      });
+    }
+    return {
+      chance, ativos, multBoost: { captura: multBoost('captura'), shiny: multBoost('shiny') },
+      vip: agora < (eu.loja?.vipAte ?? 0),
+      bolaTopo: { nome: topo.nome, catchRate: topo.catchRate, priceGold: topo.compravel ? topo.priceGold ?? null : null },
+      bolaOuro: ouro ? { nome: ouro.nome, catchRate: ouro.catchRate, priceGold: ouro.priceGold } : null,
+      porTopo: [...linhas].sort((a, b) => b.topo.agora - a.topo.agora).slice(0, max),
+      porOuro: ouro ? [...linhas].sort((a, b) => b.ouro.agora - a.ouro.agora).slice(0, 3) : [],
+    };
+  }
+
+  window.__launcherHunt = { calcular, versao: 2 };
 })();

@@ -56,6 +56,9 @@ webFrame.executeJavaScript(`(() => {
         tiposBoost: w.tiposBoost, outlandTiers: w.outlandTiers, chanceBossToken: w.chanceBossToken, economia: w.economia,
         casas: { fragmento: w.casas && w.casas.fragmento }, bicicletas: { fragmento: w.bicicletas && w.bicicletas.fragmento },
         shinyStone: { chanceDrop: w.shinyStone && w.shinyStone.chanceDrop },
+        // Caça shiny: a chance por arremesso, a régua de captura, as bolas e quem tem forma shiny (só o dex).
+        chanceShiny: w.chanceShiny, captura: w.captura, shinyDex: Object.keys(w.shinyLooks || {}),
+        catalogoBolas: (w.catalogoBolas || []).map((b) => ({ id: b.id, nome: b.nome, catchRate: b.catchRate, compravel: b.compravel, priceGold: b.priceGold })),
       };
       if (w.estado) aplicarEstado(Object.assign({}, w.estado, { cheio: true }));
     }

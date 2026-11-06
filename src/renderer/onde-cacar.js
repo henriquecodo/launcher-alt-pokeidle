@@ -7,6 +7,7 @@
  *  - Pede o cálculo ao motor (src/game/hunt-engine.js), que roda dentro da conta só neste momento.
  */
 const MEDIR_MIN_MS = 10 * 60e3;
+const MOTOR_VERSAO = 2; // a mesma de src/game/hunt-engine.js — versão nova substitui a já injetada
 const RITMO_MAX = 80; // hunts lembradas por conta
 // Menores anúncios vistos em 06/11/2026 — trocados sozinhos quando você abre o Mercado da Comunidade.
 const PRECOS_PADRAO = { at: Date.UTC(2026, 10, 6, 12), itens: { bossToken: { gemas: 3 }, fragChave: { gemas: 192 }, fragShiny: { gemas: 93 }, fragBicicleta: { gemas: 140 } } };
@@ -60,7 +61,7 @@ async function calcularOnde(p) {
   const acc = cfg.accounts[p.idx];
   if (!(p.state && p.state.loggedIn)) return pintarSheet(p, { aviso: 'Entre na conta para calcular onde caçar.' });
   pintarSheet(p, { carregando: true });
-  if ((await js(p, 'typeof window.__launcherHunt')) !== 'object') await js(p, await window.launcher.engineSource());
+  if ((await js(p, 'window.__launcherHunt ? window.__launcherHunt.versao : 0')) !== MOTOR_VERSAO) await js(p, await window.launcher.engineSource());
   const medido = Object.fromEntries(Object.entries(acc.ritmo || {}).map(([k, v]) => [k, v.kph]));
   const bruto = await js(p, `window.__launcherHunt.calcular(${JSON.stringify({ medido, max: 10 })})
     .then((r) => JSON.stringify(r)).catch((e) => JSON.stringify({ erro: String((e && e.message) || e) }))`);
@@ -80,7 +81,7 @@ function pintarSheet(p, estado) {
   if (estado.carregando) corpo = `<div class="sheet-vazio"><div class="spinner"></div><b>Calculando…</b><p>Simulando o seu pokémon em cada hunt liberada.</p></div>`;
   else if (estado.aviso) corpo = `<div class="sheet-vazio"><b>${escH(estado.aviso)}</b></div>`;
   else if (!dados) corpo = '';
-  else corpo = aba === 'hunts' ? abaHunts(p, dados.r) : abaOutland(p, dados.r);
+  else corpo = aba === 'hunts' ? abaHunts(p, dados.r) : aba === 'shiny' ? abaShiny(p, dados.r) : abaOutland(p, dados.r);
   const sub = dados && !estado.carregando ? `${escH(dados.r.pokemon.nome)} · Nv ${num(dados.r.pokemon.nivel)}` : cfg.accounts[p.idx].name;
   sheet.innerHTML = `
     <div class="sheet-head">
@@ -93,6 +94,7 @@ function pintarSheet(p, estado) {
     <div class="sheet-tabs">
       <button data-aba="hunts" class="${aba === 'hunts' ? 'on' : ''}">Melhores hunts</button>
       <button data-aba="outland" class="${aba === 'outland' ? 'on' : ''}">Outland &amp; renda</button>
+      <button data-aba="shiny" class="${aba === 'shiny' ? 'on' : ''}">Caça shiny</button>
     </div>
     <div class="sheet-corpo">${corpo}</div>`;
   $('.sheet-close', sheet).onclick = () => p.el.classList.remove('sheet-open');
@@ -168,4 +170,63 @@ function abaOutland(p, r) {
     ${medido}
     <div class="sheet-sub">Outlands mais rápidas para este pokémon</div>
     <div class="hunt-list">${top}</div>`;
+}
+
+// ---------- Caça shiny ----------
+// O brilho é sorteado em cada bola lançada e só fica se a bola fechar: a taxa de shiny CAPTURADO por hora
+// (λ, calculada pelo motor) vira probabilidade por tempo com 1 − e^(−λ·t).
+const probEm = (lambdaH, horas) => 1 - Math.exp(-lambdaH * horas);
+const pct = (x) => (x == null ? '—' : x >= 0.995 ? '>99%' : x < 0.001 ? '<0,1%' : num(x * 100, x < 0.1 ? 2 : 0) + '%');
+const mediaTxt = (lambdaH) => {
+  if (!(lambdaH > 0)) return '—';
+  const h = 1 / lambdaH;
+  return h < 48 ? `~${num(h, 0)} h` : `~${num(h / 24, 0)} dias`;
+};
+const ESTAGIO = { 20: '1º estágio', 40: 'meio', 100: 'final' };
+
+function abaShiny(p, r) {
+  const s = r.shiny;
+  if (!s || s.erro) return '<div class="sheet-vazio"><b>Atualize a conta (↻) uma vez</b><p>O launcher precisa ler de novo os dados do jogo para a caça shiny.</p></div>';
+  if (!s.porTopo.length) return '<div class="sheet-vazio"><b>Nenhuma hunt fora da Outland é segura para este pokémon.</b><p>Na Outland o shiny não rola.</p></div>';
+  const topo = s.bolaTopo, ouro = s.bolaOuro;
+  const b = s.porTopo[0];
+  const chips = [
+    `Shiny <b>1 em ${num(1 / s.chance)}</b> por bola`,
+    `Capture Boost <b>${s.ativos.captura > 1 ? 'ativo ×' + num(s.ativos.captura, 1) : 'desligado'}</b>`,
+    `Shiny Lure <b>${s.ativos.shiny > 1 ? 'ativo ×' + num(s.ativos.shiny, 1) : 'desligado'}</b>`,
+  ];
+  const vip = s.vip ? '' : '<div class="sheet-dica">"Lançar sem Parar" é do VIP: sem ele, você precisa lançar a bola à mão em cada corpo.</div>';
+  const colOuro = ouro ? `<th class="n">${escH(ouro.nome)}</th>` : '';
+  const celOuro = (lam) => (ouro ? `<td class="n">${lam}</td>` : '');
+  const tempos = [['1 dia', 24], ['7 dias', 24 * 7], ['30 dias', 24 * 30]].map(([rot, hs]) =>
+    `<tr><td>${rot}</td><td class="n"><b>${pct(probEm(b.topo.agora, hs))}</b></td>${celOuro(pct(probEm(b.ouro?.agora, hs)))}</tr>`).join('');
+  const cenarios = [['Sem boost', 'nenhum'], ['+ Capture Boost', 'captura'], ['+ Shiny Lure', 'lure'], ['Os dois', 'ambos']].map(([rot, k]) =>
+    `<tr><td>${rot}</td><td class="n">${mediaTxt(b.topo[k])}</td>${celOuro(mediaTxt(b.ouro?.[k]))}</tr>`).join('');
+  const bolasDia = b.kph * 24;
+  const custo = ouro
+    ? `<b>${escH(ouro.nome)}</b>: ${num(ouro.priceGold)} de ouro por bola → ~${fmt(b.custoOuroH)} de ouro/h, contra ~${fmt(b.ouroH)} de ouro/h que a hunt dá. `
+    : '';
+  const custoTopo = topo.priceGold ? `${escH(topo.nome)}: ${num(topo.priceGold)} de ouro por bola. ` : `${escH(topo.nome)} não se compra com ouro. `;
+  const especiesTxt = b.especies.map((e) => `<tr><td>${escH(e.nome)}<small>${num(e.peso * 100, 0)}% dos selvagens · ${ESTAGIO[e.teto] || 'final'}</small></td><td class="n">${pct(e.capTopo)}</td>${celOuro(pct(e.capOuro))}</tr>`).join('');
+  const lista = s.porTopo.slice(0, 5).map((h, i) => `<div class="hunt">
+      <span class="rank">${i + 1}</span>
+      <div class="h-main"><b>${escH(h.nome)}</b><small>Nv ${num(h.nivel)} · ${num(h.kph)} abates/h ${h.ritmo === 'medido' ? '<em class="tag ok">medido</em>' : '<em class="tag">estimado</em>'} · ${num(h.fracShiny * 100, 0)}% com shiny · ${num(h.frac1oEstagio * 100, 0)}% 1º estágio</small></div>
+      <div class="h-num"><b>${mediaTxt(h.topo.agora)}</b><small>por shiny</small></div>
+    </div>`).join('');
+  const melhorOuro = ouro && s.porOuro[0] && s.porOuro[0].slug !== b.slug
+    ? `<div class="sheet-nota">Com a ${escH(ouro.nome)}, a melhor é <b>${escH(s.porOuro[0].nome)}</b> (${mediaTxt(s.porOuro[0].ouro.agora)} por shiny).</div>` : '';
+  return `<div class="sheet-ctx">${chips.map((x) => `<span>${x}</span>`).join('')}</div>${vip}
+    <div class="sheet-atual">Melhor hunt: <b>${escH(b.nome)}</b> (Nv ${num(b.nivel)}, ${escH(NOME_REGIAO(b.regiao))}) · ${num(b.kph)} abates/h · ${num(b.fracShiny * 100, 0)}% dos selvagens têm shiny, ${num(b.frac1oEstagio * 100, 0)}% de 1º estágio · ~${num(b.vistosH * 24, 2)} shiny sorteado(s)/dia</div>
+    <div class="sheet-sub">Chance de capturar pelo menos 1 shiny nela</div>
+    <table class="renda"><thead><tr><th>Caçando por</th><th class="n">${escH(topo.nome)}</th>${colOuro}</tr></thead><tbody>${tempos}</tbody>
+      <tfoot><tr><td>Em média, 1 shiny a cada</td><td class="n"><b>${mediaTxt(b.topo.agora)}</b></td>${celOuro('<b>' + mediaTxt(b.ouro?.agora) + '</b>')}</tr></tfoot></table>
+    <div class="sheet-sub">Tempo médio por shiny, com boosts</div>
+    <table class="renda"><thead><tr><th>Boost</th><th class="n">${escH(topo.nome)}</th>${colOuro}</tr></thead><tbody>${cenarios}</tbody></table>
+    <div class="sheet-nota">São ~${fmt(bolasDia)} bolas por dia (uma por corpo). ${custoTopo}${custo}</div>
+    ${melhorOuro}
+    <div class="sheet-sub">Quem aparece nela (chance da bola fechar)</div>
+    <table class="renda"><thead><tr><th>Espécie</th><th class="n">${escH(topo.nome)}</th>${colOuro}</tr></thead><tbody>${especiesTxt}</tbody></table>
+    <div class="sheet-sub">Melhores hunts para shiny</div>
+    <div class="hunt-list">${lista}</div>
+    <p class="sheet-nota">Regras do Pokepédia do jogo: o shiny é sorteado em cada bola lançada (uma por corpo) e, se a bola falhar, vai embora com o corpo. Por isso conta matar rápido e ter espécies de 1º estágio, que se capturam mais fácil. Na Outland o shiny não rola. Use "Lançar sem Parar" e a melhor bola. É probabilidade: pode vir antes ou depois da média. O bônus da Kick/Twitch não entra na conta.</p>`;
 }

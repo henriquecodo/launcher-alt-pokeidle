@@ -53,6 +53,7 @@ O **Launcher Alt: PokeIdle** junta tudo em **uma única janela**: cada conta rod
 | **Layout inteligente** | 2×2 com 4 contas, principal em destaque com 3, lado a lado com 2. Também há "lado a lado" e "empilhado". |
 | **Zoom automático** | O jogo se ajusta sozinho ao tamanho de cada card, com a HUD inteira visível. Dá para ajustar à mão por conta. |
 | **Onde caçar?** 🏆 | Um clique no troféu (ou em **Onde caçar** na barra) e o launcher simula o **seu** pokémon em campo contra cada hunt liberada, com as fórmulas de combate do próprio jogo: top 10 por XP/h, abates/h e risco. O ritmo de cada hunt é **medido de verdade** na sua conta depois de 10 min caçando nela. Não roda nada em segundo plano: o cálculo só acontece quando você abre o painel. |
+| **Caça shiny** ✨ | A melhor hunt para capturar um shiny com o seu pokémon e a chance de conseguir em 1, 7 e 30 dias, com a Beast Ball e com a melhor bola que se compra com ouro — e o tempo médio com Capture Boost e Shiny Lure. Pelas regras do jogo: o shiny é sorteado em cada bola (uma por corpo), então vale matar rápido e caçar espécies de 1º estágio; na Outland o shiny não rola. |
 | **Outland & renda** 💎 | Quanto cada conta tira por dia em **Bronze Boss Tokens** e **fragmentos** (Chave, Shiny Stone, Bicicleta) na Outland mais rápida para o seu pokémon, com o seu tier e bônus de loot — em Gemas (já sem a taxa do Mercado), em USDT e em dias até o saque mínimo. Os preços vêm do **Mercado da Comunidade**: abriu o mercado em qualquer conta, o launcher guarda o menor anúncio. Avisa quando você já libera um tier melhor. |
 | **Farm que não para** 🩺 | O farm roda no servidor enquanto a conexão de cada conta estiver viva. O launcher mantém essa conexão de pé com o launcher minimizado ou coberto, **vigia a conexão** (90 s sem resposta do servidor → reconecta; se não voltar → recarrega a conta), **reconecta tudo na volta do sono/hibernação**, destrava XP parado por 15 min e faz uma atualização preventiva a cada 6 h. Conta aberta em outro lugar nunca é tomada de volta sozinha. |
 | **Sem cena quando ausente** | PC ausente ou launcher minimizado: a cena das contas sai (bem menos RAM/CPU, a caça continua) e volta quando você volta. |
@@ -80,6 +81,14 @@ O **Launcher Alt: PokeIdle** junta tudo em **uma única janela**: cada conta rod
 O launcher nasceu de uma ideia simples — *"e se as 4 contas coubessem numa janela só?"* — e foi lapidado versão a versão, testado de verdade no farm, até chegar à 1.0. Cada etapa:
 
 <details open>
+<summary><b>✨ 1.3 — Caça shiny</b> · a melhor hunt e a chance por tempo</summary>
+
+<br>
+
+- Nova aba no "Onde caçar?": onde o seu pokémon tem mais chance de capturar um shiny, a probabilidade em 1, 7 e 30 dias com a Beast Ball e com a melhor bola de ouro, e quanto os boosts encurtam a espera.
+</details>
+
+<details>
 <summary><b>💎 1.2 — Onde caçar e renda da Outland</b> · calculadora própria, sem extensão</summary>
 
 <br>
@@ -385,6 +394,13 @@ flowchart LR
 - Renda/dia = abates/h × 24 × chance × preço (o menor anúncio do Mercado da Comunidade), já sem a taxa do Mercado (13% até 500 Gemas, 10% até 5.000, 7,5% acima). Em USDT pelo valor de saque do jogo (1 Gema = 0,009 USDT).
 - Os fragmentos são raríssimos: o grosso da renda costuma vir dos Boss Tokens, e o painel mostra quantos dias leva para cair um fragmento. É estimativa, não renda garantida — o painel também mostra o que caiu de verdade em cada hunt.
 - **Para render mais:** a Outland mais rápida para o seu pokémon (o painel ordena por abates/h), o tier mais alto que o seu nível libera (troque no Mapa) e todas as contas farmando.
+
+### Caça shiny
+
+- Pelas regras do Pokepédia: o brilho é sorteado **em cada bola lançada** (a chance `chanceShiny` que o jogo manda, hoje 1 em 24.000, igual para toda espécie com forma shiny), é **uma bola por corpo** e o shiny que escapa vai embora com o corpo. Na Outland o shiny não rola.
+- Chance de a bola fechar num corpo caído = base × (eficiência da bola ÷ fator do estágio evolutivo) × 1,4, entre o piso e o teto do jogo — pelas mesmas funções do jogo (`captura-degrau.mjs`, `teto-captura.mjs`). Capture Boost multiplica a captura (até o teto) e o Shiny Secret Lure, o shiny.
+- Shiny capturado por hora numa hunt: λ = abates/h × Σ (peso no spawn × tem shiny × chance de shiny × captura). A chance de pegar pelo menos um em *t* horas é 1 − e^(−λ·t), e o tempo médio é 1/λ.
+- Compara a Beast Ball com a melhor bola que se compra com ouro (o custo por hora contra o ouro que a hunt dá). O bônus da Kick/Twitch não entra.
 
 ### Saúde das contas
 
