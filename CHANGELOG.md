@@ -4,6 +4,12 @@ Todas as mudanças relevantes deste projeto ficam registradas aqui.
 O formato segue o [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/) e o versionamento segue o [SemVer](https://semver.org/lang/pt-BR/).
 As versões 0.x foram as etapas de desenvolvimento antes do lançamento público, todas em 2026-10-06.
 
+## [1.4.1] — 2026-11-19 · Hotfix: Gold → Gemas sem as pedras de evolução
+
+### Corrigido
+- O "Gold → Gemas" punha no topo as **pedras de evolução de tipo** (Fire, Water, Leaf…, que caem de qualquer pokémon e servem para evoluir no Nv 40/80). Elas têm mercado em moedas, não em Gemas: agora ficam fora da conta, pela lista de pedras do próprio jogo (`pedras-evolucao.mjs`), e a aba diz quantas ficaram de fora. Boss Token, Shiny Stone, Mega Stone, Beast Ball e os fragmentos continuam.
+- Motor "Onde caçar?" na versão 5.
+
 ## [1.4.0] — 2026-11-19 · Gold → Gemas e a Outland nova
 
 O jogo chegou à v1.443: a Outland ganhou 40 tiers, o Boss Token passou a cair 5× menos e a venda de item por Gemas no RMT tem taxa fixa.

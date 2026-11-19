@@ -410,6 +410,7 @@ flowchart LR
 - Ao abrir a vitrine do RMT, o jogo recebe do servidor, por item, o menor anúncio em moedas e em Gemas e a média paga nos últimos 7 dias (com as unidades vendidas). O launcher só escuta essa mensagem.
 - **Compra** = menor anúncio em moedas (só a 1ª unidade tem esse preço garantido). **Venda** = o menor entre o anúncio atual em Gemas e a média de 7 dias. **Recebe** = venda menos a taxa do jogo (`taxa-mercado.mjs`: 15% para item, sobre o total do anúncio, arredondada para cima — por unidade, contada num lote de 100).
 - **Rende** = Gemas recebidas ÷ moedas pagas × 1.000.000. Itens sem nenhuma venda por Gemas na semana vão para o fim.
+- **Pedras de evolução de tipo** (Fire, Water, Leaf…, drop de qualquer pokémon) ficam fora: o mercado delas é em moedas, não em Gemas. A lista é a do próprio jogo (`pedras-evolucao.mjs`).
 - Cada categoria do RMT chega num pedido: abra "Todas" (ou passe pelas categorias) para comparar tudo.
 
 ### Caça shiny

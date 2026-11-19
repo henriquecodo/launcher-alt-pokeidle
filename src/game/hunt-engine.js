@@ -16,7 +16,7 @@
  * e, sem medida, de um padrão. Por isso cada linha diz se o ritmo é "medido" ou "estimado".
  */
 (() => {
-  if ((window.__launcherHunt?.versao ?? 0) >= 3) return;
+  if ((window.__launcherHunt?.versao ?? 0) >= 5) return;
   const SYM = Symbol.for('launcher.jogo'); // o coletor do launcher (game-preload) guarda aqui o welcome + estado
 
   const REGRA = {
@@ -32,16 +32,16 @@
   let modulos = null;
   async function carregarModulos() {
     if (modulos) return modulos;
-    const [outland, planilhas, baseOutland, evol, ajustes, especiais, orre, megas, cooldown, nota, mistico, recompensa, tipos, analyser, sazonal, degrau, teto, formas, tiersMod, taxa, sac] =
+    const [outland, planilhas, baseOutland, evol, ajustes, especiais, orre, megas, cooldown, nota, mistico, recompensa, tipos, analyser, sazonal, degrau, teto, formas, tiersMod, taxa, sac, pedras] =
       await Promise.all([
         'shared/outland.mjs', 'shared/golpes-planilhas.mjs', 'shared/herdar-base-outland.mjs', 'shared/evolucoes-cruzadas.mjs',
         'shared/ajustes-especie-espelho.mjs', 'shared/golpes-especiais.mjs', 'shared/herdar-golpes-orre.mjs', 'shared/megas.mjs',
         'shared/cooldown-golpes.mjs', 'shared/nota-pokemon.mjs', 'shared/mistico.mjs', 'shared/recompensa-hunt.mjs',
         'shared/tipo-efetividade.mjs', 'hunt-analyser.mjs', 'shared/dia-sazonal.mjs',
         'shared/captura-degrau.mjs', 'shared/teto-captura.mjs', 'shared/formas.mjs',
-        'shared/outland-tiers.mjs', 'shared/taxa-mercado.mjs', 'shared/sacrificio.mjs',
+        'shared/outland-tiers.mjs', 'shared/taxa-mercado.mjs', 'shared/sacrificio.mjs', 'shared/pedras-evolucao.mjs',
       ].map(imp));
-    modulos = { outland, planilhas, baseOutland, evol, ajustes, especiais, orre, megas, cooldown, nota, mistico, recompensa, tipos, analyser, sazonal, degrau, teto, formas, tiersMod, taxa, sac };
+    modulos = { outland, planilhas, baseOutland, evol, ajustes, especiais, orre, megas, cooldown, nota, mistico, recompensa, tipos, analyser, sazonal, degrau, teto, formas, tiersMod, taxa, sac, pedras };
     return modulos;
   }
 
@@ -404,6 +404,8 @@
    *             menos a taxa de venda do jogo (liquidoOrbDaVenda — hoje 15% para item);
    *   rende   = Gemas líquidas por 1 milhão de moedas gastas.
    * Item sem nenhuma venda em Gemas na semana vai para o fim: anunciar não garante vender.
+   * Ficam FORA as pedras de evolução de tipo (Fire, Water, Leaf…: PEDRAS do jogo, drop de qualquer
+   * pokémon): o mercado delas é em moedas, não em Gemas. Shiny Stone, Mega Stone, Boss Token etc. ficam.
    */
   async function rmt() {
     const fonte = window[SYM];
@@ -431,7 +433,9 @@
         gemasPorMilhao: ouro && liq ? (liq / ouro) * 1e6 : null,
       });
     }
-    const viaveis = linhas.filter((l) => l.gemasPorMilhao != null)
+    const comPreco = linhas.filter((l) => l.gemasPorMilhao != null);
+    const ehPedraComum = (l) => m.pedras.PEDRAS?.has(l.nome);
+    const viaveis = comPreco.filter((l) => !ehPedraComum(l))
       .sort((a, b) => (b.unidGemas > 0) - (a.unidGemas > 0) || b.gemasPorMilhao - a.gemasPorMilhao);
     const drops = Object.fromEntries(dropsOutland(m, w).map((d) => {
       const r = merc.resumo[d.itemId] ?? null;
@@ -441,8 +445,9 @@
     return {
       em: merc.em, vistos: linhas.length, catalogo: cat.size, taxaItemOrb: m.taxa.TAXA_ORB_PLANA, economia: w.economia ?? null,
       linhas: viaveis.slice(0, 30), semCompraOuro: linhas.filter((l) => !l.ouro).length, drops,
+      pedrasFora: comPreco.filter(ehPedraComum).length,
     };
   }
 
-  window.__launcherHunt = { calcular, rmt, versao: 3 };
+  window.__launcherHunt = { calcular, rmt, versao: 5 };
 })();

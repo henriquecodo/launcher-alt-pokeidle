@@ -8,7 +8,7 @@
  *  - Pede o cálculo ao motor (src/game/hunt-engine.js), que roda dentro da conta só neste momento.
  */
 const MEDIR_MIN_MS = 10 * 60e3;
-const MOTOR_VERSAO = 3; // a mesma de src/game/hunt-engine.js — versão nova substitui a já injetada
+const MOTOR_VERSAO = 5; // a mesma de src/game/hunt-engine.js — versão nova substitui a já injetada
 const RITMO_MAX = 80; // hunts lembradas por conta
 // Menores anúncios vistos em 06/11/2026 — trocados sozinhos quando você abre o RMT em qualquer conta.
 const PRECOS_PADRAO = { at: Date.UTC(2026, 10, 6, 12), itens: { bossToken: { gemas: 3 }, fragChave: { gemas: 192 }, fragShiny: { gemas: 93 }, fragBicicleta: { gemas: 140 } } };
@@ -295,8 +295,9 @@ function abaRmt(p) {
   const ctx = `<div class="sheet-ctx">${chips.map((x) => `<span>${x}</span>`).join('')}</div>`;
   const poucos = r.catalogo && r.vistos < r.catalogo * 0.8
     ? '<div class="sheet-dica">Para comparar todos os itens, abra no RMT a categoria "Todas" (ou passe por cada categoria) e clique em ↻ aqui.</div>' : '';
+  const piso = r.pedrasFora ? `<div class="sheet-medido">Pedras de evolução (Fire, Water, Leaf…, drop de qualquer pokémon) ficam fora: o mercado delas é em moedas, não em Gemas. ${num(r.pedrasFora)} fora da conta.</div>` : '';
   const ls = r.linhas || [];
-  if (!ls.length) return `${ctx}${poucos}<div class="sheet-vazio"><b>Nenhum item com anúncio em moedas e preço em Gemas ao mesmo tempo.</b></div>`;
+  if (!ls.length) return `${ctx}${poucos}${piso}<div class="sheet-vazio"><b>Nenhum item com anúncio em moedas e preço em Gemas ao mesmo tempo.</b></div>`;
   const b = ls[0];
   const vend = (l) => (l.unidGemas ? `${num(l.unidGemas)} vendidos por Gemas em 7 dias` : 'nenhuma venda por Gemas em 7 dias');
   const melhor = `<div class="sheet-atual">Melhor agora: <b>${escH(b.nome)}</b>. Compre por <b>${fmt(b.ouro)}</b> moedas e venda por <b>${gem(b.venda)}</b> Gemas: você recebe <b>${gem(b.liquido)}</b> Gemas (já sem os ${num(taxa * 100, 0)}%). Rende <b>${num(b.gemasPorMilhao, 1)} Gemas por 1M de moedas</b> (≈ ${num(b.gemasPorMilhao * usdt, 2)} USDT) · ${vend(b)}.</div>`;
@@ -307,7 +308,7 @@ function abaRmt(p) {
       <td class="n">${gem(l.liquido)}</td>
       <td class="n"><b>${num(l.gemasPorMilhao, 1)}</b></td>
     </tr>`).join('');
-  return `${ctx}${poucos}${melhor}
+  return `${ctx}${poucos}${piso}${melhor}
     <div class="sheet-sub">Comprar com moedas para vender por Gemas</div>
     <table class="renda"><thead><tr><th>Item</th><th class="n">Compra (moedas)</th><th class="n">Venda (Gemas)</th><th class="n">Recebe</th><th class="n">Gemas / 1M</th></tr></thead>
       <tbody>${linhas}</tbody></table>
