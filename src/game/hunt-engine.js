@@ -16,7 +16,7 @@
  * e, sem medida, de um padrão. Por isso cada linha diz se o ritmo é "medido" ou "estimado".
  */
 (() => {
-  if ((window.__launcherHunt?.versao ?? 0) >= 2) return;
+  if ((window.__launcherHunt?.versao ?? 0) >= 3) return;
   const SYM = Symbol.for('launcher.jogo'); // o coletor do launcher (game-preload) guarda aqui o welcome + estado
 
   const REGRA = {
@@ -32,15 +32,16 @@
   let modulos = null;
   async function carregarModulos() {
     if (modulos) return modulos;
-    const [outland, planilhas, baseOutland, evol, ajustes, especiais, orre, megas, cooldown, nota, mistico, recompensa, tipos, analyser, sazonal, degrau, teto, formas] =
+    const [outland, planilhas, baseOutland, evol, ajustes, especiais, orre, megas, cooldown, nota, mistico, recompensa, tipos, analyser, sazonal, degrau, teto, formas, tiersMod, taxa, sac] =
       await Promise.all([
         'shared/outland.mjs', 'shared/golpes-planilhas.mjs', 'shared/herdar-base-outland.mjs', 'shared/evolucoes-cruzadas.mjs',
         'shared/ajustes-especie-espelho.mjs', 'shared/golpes-especiais.mjs', 'shared/herdar-golpes-orre.mjs', 'shared/megas.mjs',
         'shared/cooldown-golpes.mjs', 'shared/nota-pokemon.mjs', 'shared/mistico.mjs', 'shared/recompensa-hunt.mjs',
         'shared/tipo-efetividade.mjs', 'hunt-analyser.mjs', 'shared/dia-sazonal.mjs',
         'shared/captura-degrau.mjs', 'shared/teto-captura.mjs', 'shared/formas.mjs',
+        'shared/outland-tiers.mjs', 'shared/taxa-mercado.mjs', 'shared/sacrificio.mjs',
       ].map(imp));
-    modulos = { outland, planilhas, baseOutland, evol, ajustes, especiais, orre, megas, cooldown, nota, mistico, recompensa, tipos, analyser, sazonal, degrau, teto, formas };
+    modulos = { outland, planilhas, baseOutland, evol, ajustes, especiais, orre, megas, cooldown, nota, mistico, recompensa, tipos, analyser, sazonal, degrau, teto, formas, tiersMod, taxa, sac };
     return modulos;
   }
 
@@ -247,18 +248,16 @@
     }
     const mortoPadrao = mediana(Object.values(mortoDe)) ?? 3.3;
 
-    // Outland: o tier que vale agora (o escolhido, limitado pelo nível) e o melhor que o nível libera
-    const tiers = w.outlandTiers ?? [];
+    // Outland: o tier que vale agora (o escolhido, limitado pelo nível — a mesma regra do jogo, que também
+    // aceita os ids antigos 1–8) e o melhor que o nível libera. Desde a v1.4xx são 40 tiers (×1 a ×20).
+    const tiers = w.outlandTiers?.length ? w.outlandTiers : m.tiersMod.catalogoOutlandTiers();
     const liberados = tiers.filter((x) => eu.level >= x.nivel);
     const melhorTier = liberados.at(-1) ?? tiers[0] ?? { tier: 1, mult: 1 };
-    const tierAtual = liberados.find((x) => x.tier === eu.outlandTier) ?? melhorTier;
-    const drops = [
-      { id: 'bossToken', nome: 'Bronze Boss Token', chance: Number(w.chanceBossToken) || 0 },
-      { id: 'fragChave', nome: 'Fragmento de Chave', chance: Number(w.casas?.fragmento?.chanceDrop) || 0 },
-      { id: 'fragShiny', nome: 'Fragmento de Shiny Stone', chance: Number(w.shinyStone?.chanceDrop) || 0 },
-      { id: 'fragBicicleta', nome: 'Fragmento de Bicicleta', chance: Number(w.bicicletas?.fragmento?.chanceDrop) || 0 },
-    ];
-    const multLoot = 1 + bonusLoot / 100;
+    const idValido = m.tiersMod.tierOutlandValido(eu.outlandTier ?? m.tiersMod.OUTLAND_TIER_PADRAO, eu.level);
+    const tierAtual = tiers.find((x) => x.tier === idValido) ?? melhorTier;
+    const drops = dropsOutland(m, w);
+    // O analisador do próprio jogo calcula os drops da Outland só com o multiplicador do tier, sem o bônus de loot.
+    const multLoot = 1;
 
     const linhas = [];
     for (const h of w.hunts ?? []) {
@@ -292,7 +291,8 @@
       treinador: { nivel: eu.level, huntAtual: eu.huntSlug ?? null },
       bonus: { multXpTreinador: +multTr.toFixed(2), multXpPokemon: +multPk.toFixed(2), lootPct: Math.round(bonusLoot), tipoDoDia: ctx.tipoDoDia },
       ritmo: { mortoPadraoS: +mortoPadrao.toFixed(1), medidas: Object.keys(mortoDe).length },
-      outland: { tierAtual, melhorTier, tiers, drops: drops.map(({ id, nome, chance }) => ({ id, nome, chance })), multLoot: +multLoot.toFixed(2) },
+      outland: { tierAtual, melhorTier, tiers, drops: drops.map(({ id, nome, chance, itemId }) => ({ id, nome, chance, itemId })), multLoot },
+      taxaItemOrb: m.taxa.TAXA_ORB_PLANA,
       economia: w.economia ?? null,
       porXp: [...seguras].sort((x, y) => y.xpPokemonH - x.xpPokemonH).slice(0, max),
       porOuro: [...seguras].sort((x, y) => y.ouroH - x.ouroH).slice(0, max),
@@ -384,5 +384,65 @@
     };
   }
 
-  window.__launcherHunt = { calcular, versao: 2 };
+  /** Os drops raros da Outland, com o id de item de cada um (para casar com os preços do RMT). */
+  function dropsOutland(m, w) {
+    const cat = w.mercadoCatalogo ?? [];
+    const idPorNome = (nome, padrao) => cat.find((i) => i.nome === nome)?.id ?? padrao;
+    return [
+      { id: 'bossToken', nome: 'Bronze Boss Token', chance: Number(w.chanceBossToken) || 0, itemId: idPorNome('Bronze Boss Token', 70000) },
+      { id: 'fragChave', nome: 'Fragmento de Chave', chance: Number(w.casas?.fragmento?.chanceDrop) || 0, itemId: w.casas?.fragmento?.itemId ?? 70011 },
+      { id: 'fragShiny', nome: 'Fragmento de Shiny Stone', chance: Number(w.shinyStone?.chanceDrop) || 0, itemId: w.shinyStoneFragId ?? 70012 },
+      { id: 'fragBicicleta', nome: 'Fragmento de Bicicleta', chance: Number(w.bicicletas?.fragmento?.chanceDrop) || 0, itemId: w.bicicletas?.fragmento?.itemId ?? 70013 },
+      { id: 'osso', nome: 'Osso de Sacrifício', chance: Number(m.sac.CHANCE_OSSO_SACRIFICIO) || 0, itemId: m.sac.OSSO_SACRIFICIO_ID ?? 70018 },
+    ];
+  }
+
+  /**
+   * RMT: gold → Gemas. Com os preços que o servidor mandou quando o RMT foi aberto (fonte.mercado):
+   *   compra  = o menor anúncio em moedas (minGold) — o que custa 1 unidade agora;
+   *   venda   = o menor entre o anúncio atual em Gemas (minOrb) e a média paga nos últimos 7 dias,
+   *             menos a taxa de venda do jogo (liquidoOrbDaVenda — hoje 15% para item);
+   *   rende   = Gemas líquidas por 1 milhão de moedas gastas.
+   * Item sem nenhuma venda em Gemas na semana vai para o fim: anunciar não garante vender.
+   */
+  async function rmt() {
+    const fonte = window[SYM];
+    if (!fonte?.welcome) throw new Error('o jogo ainda não mandou os dados desta conta — espere conectar');
+    const merc = fonte.mercado;
+    if (!merc?.em) throw new Error('abra o RMT (Mercado da Comunidade) nesta conta, na vitrine de itens');
+    const m = await carregarModulos();
+    const w = fonte.welcome;
+    const cat = new Map((w.mercadoCatalogo ?? []).map((i) => [i.id, i]));
+    // A taxa do jogo é sobre o TOTAL da venda (arredondada para cima): por unidade, conta num lote de 100.
+    const liquido = (p) => (p == null ? null : m.taxa.liquidoOrbDaVenda(Math.round(p * 100), 'item') / 100);
+    const linhas = [];
+    for (const [idTxt, r] of Object.entries(merc.resumo)) {
+      const id = Number(idTxt);
+      const md = merc.medias?.[idTxt] ?? null;
+      const ouro = Number(r?.minGold) || null;
+      const gemAgora = Number(r?.minOrb) || null;
+      const gemMedia = Number(md?.orb?.media) || null;
+      const venda = gemAgora && gemMedia ? Math.min(gemAgora, gemMedia) : gemAgora ?? gemMedia;
+      const liq = liquido(venda);
+      linhas.push({
+        id, nome: cat.get(id)?.nome ?? '#' + id, categoria: cat.get(id)?.categoria ?? null,
+        ouro, ouroMedia: Number(md?.gold?.media) || null, unidOuro: Number(md?.gold?.unidades) || 0,
+        gemAgora, gemMedia, unidGemas: Number(md?.orb?.unidades) || 0, venda, liquido: liq,
+        gemasPorMilhao: ouro && liq ? (liq / ouro) * 1e6 : null,
+      });
+    }
+    const viaveis = linhas.filter((l) => l.gemasPorMilhao != null)
+      .sort((a, b) => (b.unidGemas > 0) - (a.unidGemas > 0) || b.gemasPorMilhao - a.gemasPorMilhao);
+    const drops = Object.fromEntries(dropsOutland(m, w).map((d) => {
+      const r = merc.resumo[d.itemId] ?? null;
+      const md = merc.medias?.[d.itemId] ?? null;
+      return [d.id, { itemId: d.itemId, gemAgora: Number(r?.minOrb) || null, gemMedia: Number(md?.orb?.media) || null, unidGemas: Number(md?.orb?.unidades) || 0 }];
+    }));
+    return {
+      em: merc.em, vistos: linhas.length, catalogo: cat.size, taxaItemOrb: m.taxa.TAXA_ORB_PLANA, economia: w.economia ?? null,
+      linhas: viaveis.slice(0, 30), semCompraOuro: linhas.filter((l) => !l.ouro).length, drops,
+    };
+  }
+
+  window.__launcherHunt = { calcular, rmt, versao: 3 };
 })();

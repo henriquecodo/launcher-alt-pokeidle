@@ -3,15 +3,16 @@
  *
  *  - Mede o RITMO real de cada conta por hunt (abates/h) com a prancheta de sessão do próprio jogo,
  *    comparando duas leituras na mesma hunt com 10 min ou mais entre elas. Junto, os drops raros.
- *  - Guarda os PREÇOS do Mercado da Comunidade quando você o abre em qualquer conta.
+ *  - Lê os PREÇOS do RMT (Mercado da Comunidade) quando você o abre em qualquer conta: renda da Outland
+ *    e o "Gold → Gemas" (qual item comprar com moedas para vender por Gemas).
  *  - Pede o cálculo ao motor (src/game/hunt-engine.js), que roda dentro da conta só neste momento.
  */
 const MEDIR_MIN_MS = 10 * 60e3;
-const MOTOR_VERSAO = 2; // a mesma de src/game/hunt-engine.js — versão nova substitui a já injetada
+const MOTOR_VERSAO = 3; // a mesma de src/game/hunt-engine.js — versão nova substitui a já injetada
 const RITMO_MAX = 80; // hunts lembradas por conta
-// Menores anúncios vistos em 06/11/2026 — trocados sozinhos quando você abre o Mercado da Comunidade.
+// Menores anúncios vistos em 06/11/2026 — trocados sozinhos quando você abre o RMT em qualquer conta.
 const PRECOS_PADRAO = { at: Date.UTC(2026, 10, 6, 12), itens: { bossToken: { gemas: 3 }, fragChave: { gemas: 192 }, fragShiny: { gemas: 93 }, fragBicicleta: { gemas: 140 } } };
-const CAMPO_SESSAO = { bossToken: 'bossTokens', fragChave: 'fragChave', fragShiny: 'fragShiny', fragBicicleta: 'fragBicicleta' };
+const CAMPO_SESSAO = { bossToken: 'bossTokens', fragChave: 'fragChave', fragShiny: 'fragShiny', fragBicicleta: 'fragBicicleta', osso: 'ossoSacrificio' };
 
 // ---------- medida do ritmo e dos drops ----------
 function medirRitmo(p, st) {
@@ -33,17 +34,61 @@ function medirRitmo(p, st) {
     const d = (acc.drops[slug] ||= { abates: 0, ms: 0, bossToken: 0, fragChave: 0, fragShiny: 0, fragBicicleta: 0 });
     d.abates += dAb;
     d.ms += dMs;
-    for (const [id, campo] of Object.entries(CAMPO_SESSAO)) d[id] += Math.max(0, (s[campo] | 0) - (m[campo] | 0));
+    for (const [id, campo] of Object.entries(CAMPO_SESSAO)) d[id] = (d[id] || 0) + Math.max(0, (s[campo] | 0) - (m[campo] | 0));
     save();
   }
   p.medida = { slug, ...s };
 }
 
-let precosAvisoEm = 0;
-function guardarPrecos(precos) {
-  cfg.precos = { at: Date.now(), itens: { ...(cfg.precos?.itens || PRECOS_PADRAO.itens), ...precos } };
-  save();
-  if (Date.now() - precosAvisoEm > 60e3) { precosAvisoEm = Date.now(); toast('Preços do Mercado da Comunidade atualizados para a renda da Outland'); }
+// ---------- motor e RMT ----------
+async function garantirMotor(p) {
+  if ((await js(p, 'window.__launcherHunt ? window.__launcherHunt.versao : 0')) !== MOTOR_VERSAO) await js(p, await window.launcher.engineSource());
+}
+
+// Lê o RMT da conta (o que o jogo recebeu ao abrir a vitrine) e guarda os preços dos drops da Outland.
+async function lerRmt(p) {
+  await garantirMotor(p);
+  const bruto = await js(p, `window.__launcherHunt.rmt().then((r) => JSON.stringify(r)).catch((e) => JSON.stringify({ erro: String((e && e.message) || e) }))`);
+  let r = null;
+  try { r = JSON.parse(bruto); } catch {}
+  if (!r || r.erro) return r;
+  p.rmtDados = r;
+  const itens = { ...(cfg.precos?.itens || PRECOS_PADRAO.itens) };
+  let mudou = false;
+  for (const [id, d] of Object.entries(r.drops || {})) {
+    const g = d.gemAgora && d.gemMedia ? Math.min(d.gemAgora, d.gemMedia) : d.gemAgora ?? d.gemMedia;
+    if (g) { itens[id] = { gemas: g, unid: d.unidGemas }; mudou = true; }
+  }
+  if (mudou) { cfg.precos = { at: r.em, itens }; save(); }
+  return r;
+}
+
+// O jogo recebeu preços novos do RMT numa conta (você abriu a vitrine): lê e avisa.
+let rmtAvisoEm = 0;
+async function aoRmtAberto(p) {
+  const r = await lerRmt(p);
+  if (!r || r.erro) return;
+  if (p.el.classList.contains('sheet-open') && p.sheetAba === 'rmt') pintarSheet(p, {});
+  else if (Date.now() - rmtAvisoEm > 5 * 60e3) { rmtAvisoEm = Date.now(); toast('RMT lido — clique em "Gold → Gemas" na barra para ver o que compensa'); }
+}
+
+// Botão "Gold → Gemas" da barra: abre na conta com o RMT lido mais recente (ou na conta em foco).
+async function abrirRmtBarra() {
+  const focada = panels.find((x) => x && x.el.classList.contains('focused'));
+  const comRmt = online().filter((x) => x.mercadoEm).sort((a, b) => b.mercadoEm - a.mercadoEm);
+  const p = focada && focada.mercadoEm ? focada : comRmt[0] || focada || online()[0];
+  if (!p) return toast('Entre em uma conta e abra o RMT para calcular');
+  p.el.classList.add('sheet-open');
+  p.sheetAba = 'rmt';
+  await atualizarAbaRmt(p);
+}
+
+async function atualizarAbaRmt(p) {
+  if (!(p.state && p.state.loggedIn)) return pintarSheet(p, { aviso: 'Entre na conta para ler o RMT.' });
+  pintarSheet(p, { carregando: 'Lendo os preços do RMT…' });
+  const r = await lerRmt(p);
+  if (!r) return pintarSheet(p, { aviso: 'Não foi possível ler agora. Atualize a conta (↻) e tente de novo.' });
+  pintarSheet(p, {});
 }
 
 // ---------- o painel ----------
@@ -61,7 +106,7 @@ async function calcularOnde(p) {
   const acc = cfg.accounts[p.idx];
   if (!(p.state && p.state.loggedIn)) return pintarSheet(p, { aviso: 'Entre na conta para calcular onde caçar.' });
   pintarSheet(p, { carregando: true });
-  if ((await js(p, 'window.__launcherHunt ? window.__launcherHunt.versao : 0')) !== MOTOR_VERSAO) await js(p, await window.launcher.engineSource());
+  await garantirMotor(p);
   const medido = Object.fromEntries(Object.entries(acc.ritmo || {}).map(([k, v]) => [k, v.kph]));
   const bruto = await js(p, `window.__launcherHunt.calcular(${JSON.stringify({ medido, max: 10 })})
     .then((r) => JSON.stringify(r)).catch((e) => JSON.stringify({ erro: String((e && e.message) || e) }))`);
@@ -78,14 +123,16 @@ function pintarSheet(p, estado) {
   const dados = p.sheetDados;
   const aba = p.sheetAba || 'hunts';
   let corpo;
-  if (estado.carregando) corpo = `<div class="sheet-vazio"><div class="spinner"></div><b>Calculando…</b><p>Simulando o seu pokémon em cada hunt liberada.</p></div>`;
+  if (estado.carregando) corpo = aba === 'rmt' ? `<div class="sheet-vazio"><div class="spinner"></div><b>${escH(estado.carregando)}</b></div>` : `<div class="sheet-vazio"><div class="spinner"></div><b>Calculando…</b><p>Simulando o seu pokémon em cada hunt liberada.</p></div>`;
   else if (estado.aviso) corpo = `<div class="sheet-vazio"><b>${escH(estado.aviso)}</b></div>`;
+  else if (aba === 'rmt') corpo = abaRmt(p);
   else if (!dados) corpo = '';
   else corpo = aba === 'hunts' ? abaHunts(p, dados.r) : aba === 'shiny' ? abaShiny(p, dados.r) : abaOutland(p, dados.r);
-  const sub = dados && !estado.carregando ? `${escH(dados.r.pokemon.nome)} · Nv ${num(dados.r.pokemon.nivel)}` : cfg.accounts[p.idx].name;
+  const sub = aba === 'rmt' ? `${escH(cfg.accounts[p.idx].name)}${p.rmtDados ? ` · RMT lido ${quando(p.rmtDados.em)}` : ''}`
+    : dados && !estado.carregando ? `${escH(dados.r.pokemon.nome)} · Nv ${num(dados.r.pokemon.nivel)}` : cfg.accounts[p.idx].name;
   sheet.innerHTML = `
     <div class="sheet-head">
-      <div><b>Onde caçar?</b><small>${sub}</small></div>
+      <div><b>${aba === 'rmt' ? 'Gold → Gemas' : 'Onde caçar?'}</b><small>${sub}</small></div>
       <div class="sheet-acoes">
         <button class="ibtn sheet-recalc" data-tip="Recalcular"><i class="ic">${svgIcon('reload')}</i></button>
         <button class="ibtn sheet-close" data-tip="Fechar"><i class="ic">${svgIcon('x')}</i></button>
@@ -95,11 +142,17 @@ function pintarSheet(p, estado) {
       <button data-aba="hunts" class="${aba === 'hunts' ? 'on' : ''}">Melhores hunts</button>
       <button data-aba="outland" class="${aba === 'outland' ? 'on' : ''}">Outland &amp; renda</button>
       <button data-aba="shiny" class="${aba === 'shiny' ? 'on' : ''}">Caça shiny</button>
+      <button data-aba="rmt" class="${aba === 'rmt' ? 'on' : ''}">RMT</button>
     </div>
     <div class="sheet-corpo">${corpo}</div>`;
   $('.sheet-close', sheet).onclick = () => p.el.classList.remove('sheet-open');
-  $('.sheet-recalc', sheet).onclick = () => calcularOnde(p);
-  $$('.sheet-tabs button', sheet).forEach((b) => (b.onclick = () => { p.sheetAba = b.dataset.aba; pintarSheet(p, {}); }));
+  $('.sheet-recalc', sheet).onclick = () => (p.sheetAba === 'rmt' ? atualizarAbaRmt(p) : calcularOnde(p));
+  $$('.sheet-tabs button', sheet).forEach((b) => (b.onclick = () => {
+    p.sheetAba = b.dataset.aba;
+    if (p.sheetAba === 'rmt') atualizarAbaRmt(p);
+    else if (!p.sheetDados) calcularOnde(p);
+    else pintarSheet(p, {});
+  }));
 }
 
 function chipsContexto(r) {
@@ -138,12 +191,12 @@ function abaOutland(p, r) {
   const base = r.atual && r.atual.area === 'outland' ? r.atual : r.outlands[0];
   const eco = r.economia || {};
   const usdt = Number(eco.orbSaqueUsdt) || 0.009;
-  const taxa = (g) => { const f = (eco.faixasMercadoOrb || []).find((x) => x.ate == null || g <= x.ate); return (f ? f.pct : 13) / 100; };
+  const taxaItem = r.taxaItemOrb ?? 0.15; // venda de item por Gemas: taxa fixa do jogo (as faixas valem só para pokémon)
   let totalLiq = 0;
   const linhas = o.drops.map((d) => {
     const porDia = (base.dropsH?.[d.id] || 0) * 24;
     const preco = Number(precos.itens?.[d.id]?.gemas) || 0;
-    const liq = porDia * preco * (1 - taxa(preco));
+    const liq = porDia * preco * (1 - taxaItem);
     totalLiq += liq;
     const raro = porDia > 0 && porDia < 1 ? `<small>1 a cada ${num(1 / porDia, 0)} dias</small>` : '';
     return `<tr><td>${escH(d.nome)}<small>${num(d.chance * o.tierAtual.mult * o.multLoot * 100, 4)}% por abate</small></td><td class="n">${num(porDia, porDia < 10 ? 2 : 0)}${raro}</td><td class="n">${preco ? num(preco) : '—'}</td><td class="n">${num(liq, 1)}</td></tr>`;
@@ -166,7 +219,7 @@ function abaOutland(p, r) {
     <table class="renda"><thead><tr><th>Item</th><th class="n">Por dia</th><th class="n">Preço (Gemas)</th><th class="n">Gemas/dia*</th></tr></thead>
       <tbody>${linhas}</tbody>
       <tfoot><tr><td colspan="3">Total por dia (≈ ${num(totalLiq * usdt, 2)} USDT)</td><td class="n"><b>${num(totalLiq, 1)}</b></td></tr></tfoot></table>
-    <div class="sheet-nota">${dias ? `Saque mínimo (${num(saqueMin)} Gemas) em ~<b>${num(dias, 0)} dias</b> nesta conta. ` : ''}* Já sem a taxa do Mercado. Preços: menor anúncio em ${quando(precos.at)} — abra o Mercado da Comunidade (Fragmentos ou Boss Tokens) em qualquer conta para atualizar. Estimativa pela chance publicada pelo jogo; drop raro varia muito e não é renda garantida.</div>
+    <div class="sheet-nota">${dias ? `Saque mínimo (${num(saqueMin)} Gemas) em ~<b>${num(dias, 0)} dias</b> nesta conta. ` : ''}* Já sem a taxa de ${num(taxaItem * 100, 0)}% do RMT. Preços: o menor entre o anúncio atual e a média de 7 dias, lidos em ${quando(precos.at)} — abra o RMT em qualquer conta para atualizar. Estimativa pela chance publicada pelo jogo (só o multiplicador do tier, como o analisador do jogo); drop raro varia muito e não é renda garantida.</div>
     ${medido}
     <div class="sheet-sub">Outlands mais rápidas para este pokémon</div>
     <div class="hunt-list">${top}</div>`;
@@ -229,4 +282,34 @@ function abaShiny(p, r) {
     <div class="sheet-sub">Melhores hunts para shiny</div>
     <div class="hunt-list">${lista}</div>
     <p class="sheet-nota">Regras do Pokepédia do jogo: o shiny é sorteado em cada bola lançada (uma por corpo) e, se a bola falhar, vai embora com o corpo. Por isso conta matar rápido e ter espécies de 1º estágio, que se capturam mais fácil. Na Outland o shiny não rola. Use "Lançar sem Parar" e a melhor bola. É probabilidade: pode vir antes ou depois da média. O bônus da Kick/Twitch não entra na conta.</p>`;
+}
+
+// ---------- RMT: Gold → Gemas ----------
+const gem = (x) => num(x, x != null && x < 10 ? 2 : 0);
+function abaRmt(p) {
+  const r = p.rmtDados;
+  if (!r) return '<div class="sheet-vazio"><b>Abra o RMT nesta conta</b><p>No jogo: menu RMT → vitrine de itens, de preferência em "Todas" as categorias. O launcher lê os preços que o jogo recebe e calcula aqui.</p></div>';
+  const usdt = Number(r.economia?.orbSaqueUsdt) || 0.009;
+  const taxa = r.taxaItemOrb ?? 0.15;
+  const chips = [`RMT lido <b>${quando(r.em)}</b>`, `Itens vistos <b>${num(r.vistos)} de ${num(r.catalogo)}</b>`, `Taxa de venda em Gemas <b>${num(taxa * 100, 0)}%</b>`, `1 Gema <b>${num(usdt, 3)} USDT</b>`];
+  const ctx = `<div class="sheet-ctx">${chips.map((x) => `<span>${x}</span>`).join('')}</div>`;
+  const poucos = r.catalogo && r.vistos < r.catalogo * 0.8
+    ? '<div class="sheet-dica">Para comparar todos os itens, abra no RMT a categoria "Todas" (ou passe por cada categoria) e clique em ↻ aqui.</div>' : '';
+  const ls = r.linhas || [];
+  if (!ls.length) return `${ctx}${poucos}<div class="sheet-vazio"><b>Nenhum item com anúncio em moedas e preço em Gemas ao mesmo tempo.</b></div>`;
+  const b = ls[0];
+  const vend = (l) => (l.unidGemas ? `${num(l.unidGemas)} vendidos por Gemas em 7 dias` : 'nenhuma venda por Gemas em 7 dias');
+  const melhor = `<div class="sheet-atual">Melhor agora: <b>${escH(b.nome)}</b>. Compre por <b>${fmt(b.ouro)}</b> moedas e venda por <b>${gem(b.venda)}</b> Gemas: você recebe <b>${gem(b.liquido)}</b> Gemas (já sem os ${num(taxa * 100, 0)}%). Rende <b>${num(b.gemasPorMilhao, 1)} Gemas por 1M de moedas</b> (≈ ${num(b.gemasPorMilhao * usdt, 2)} USDT) · ${vend(b)}.</div>`;
+  const linhas = ls.slice(0, 15).map((l, i) => `<tr>
+      <td><b>${i + 1}. ${escH(l.nome)}</b>${l.unidGemas ? '' : ' <em class="tag ruim">parado</em>'}<small>${vend(l)}</small></td>
+      <td class="n">${fmt(l.ouro)}<small>${l.ouroMedia ? 'média ' + fmt(l.ouroMedia) : 'sem média'}</small></td>
+      <td class="n">${gem(l.venda)}<small>agora ${l.gemAgora ? gem(l.gemAgora) : "—"} · média ${l.gemMedia ? gem(l.gemMedia) : "—"}</small></td>
+      <td class="n">${gem(l.liquido)}</td>
+      <td class="n"><b>${num(l.gemasPorMilhao, 1)}</b></td>
+    </tr>`).join('');
+  return `${ctx}${poucos}${melhor}
+    <div class="sheet-sub">Comprar com moedas para vender por Gemas</div>
+    <table class="renda"><thead><tr><th>Item</th><th class="n">Compra (moedas)</th><th class="n">Venda (Gemas)</th><th class="n">Recebe</th><th class="n">Gemas / 1M</th></tr></thead>
+      <tbody>${linhas}</tbody></table>
+    <p class="sheet-nota">Compra: o menor anúncio em moedas agora (só a 1ª unidade tem esse preço garantido; a "média" é o que se pagou nos últimos 7 dias). Venda: o menor entre o anúncio atual em Gemas e a média paga em 7 dias, menos a taxa de venda do jogo (${num(taxa * 100, 0)}% para item). Itens "parados" (sem venda por Gemas na semana) ficam no fim: anunciar não garante vender. Os preços mudam o tempo todo: confira o anúncio antes de comprar.</p>`;
 }

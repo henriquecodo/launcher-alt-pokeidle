@@ -258,7 +258,8 @@ function onState(p, st) {
     setTimeout(() => AUTOS.forEach(({ id }) => id in acc.desired && setAuto(p, id, acc.desired[id])), 2500);
   }
   medirRitmo(p, st);
-  if (st.precos) guardarPrecos(st.precos);
+  // RMT aberto nesta conta (o jogo recebeu preços novos): lê para o "Gold → Gemas" e a renda da Outland.
+  if (st.mercadoEm && st.mercadoEm !== p.mercadoEm) { p.mercadoEm = st.mercadoEm; aoRmtAberto(p); }
   renderPanel(p);
   renderTotals();
   renderAllAutos();
@@ -541,6 +542,7 @@ function bindToolbar() {
     if (f) abrirOndeCacar(f);
     else toast('Entre em uma conta para ver onde caçar');
   };
+  $('#btn-rmt').onclick = () => abrirRmtBarra();
   $('#btn-mute-all').onclick = () => {
     const m = !live().every((p) => p.muted);
     live().forEach((p) => setMuted(p, m));

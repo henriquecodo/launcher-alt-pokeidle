@@ -4,6 +4,21 @@ Todas as mudanças relevantes deste projeto ficam registradas aqui.
 O formato segue o [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/) e o versionamento segue o [SemVer](https://semver.org/lang/pt-BR/).
 As versões 0.x foram as etapas de desenvolvimento antes do lançamento público, todas em 2026-10-06.
 
+## [1.4.0] — 2026-11-19 · Gold → Gemas e a Outland nova
+
+O jogo chegou à v1.443: a Outland ganhou 40 tiers, o Boss Token passou a cair 5× menos e a venda de item por Gemas no RMT tem taxa fixa.
+
+### Adicionado
+- **Gold → Gemas** (botão na barra e aba **RMT** do painel): abriu o RMT em qualquer conta, o launcher lê os preços que o jogo recebeu e mostra qual item comprar com moedas para vender por Gemas. Compra pelo menor anúncio em moedas; venda pelo menor entre o anúncio atual em Gemas e a média paga nos últimos 7 dias, menos a taxa do jogo (15% para item, sobre o total da venda — `taxa-mercado.mjs`). Ordena por Gemas líquidas por 1 milhão de moedas, com as unidades vendidas na semana; item sem venda por Gemas fica no fim.
+- **Osso de Sacrifício** na renda da Outland (e na medida dos drops reais).
+
+### Alterado
+- **Outland com 40 tiers** (Nv 150 a 65.000, ×1 a ×20): o tier que vale e o próximo saem do módulo do jogo (`outland-tiers.mjs`), que também converte os ids antigos 1–8.
+- Drops da Outland calculados como o analisador do próprio jogo: chance × multiplicador do tier, sem o bônus de loot. As chances (Boss Token 0,01%, fragmentos 0,0004%) vêm do jogo.
+- Renda da Outland com a taxa real de venda de item por Gemas (15% fixos; as faixas 13/10/7,5% agora valem só para pokémon).
+- Os preços da renda passam a vir dos dados do RMT (anúncio atual e média de 7 dias) em vez da leitura da tela.
+- Motor "Onde caçar?" na versão 3.
+
 ## [1.3.0] — 2026-11-06 · Caça shiny
 
 ### Adicionado

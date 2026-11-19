@@ -53,6 +53,7 @@ O **Launcher Alt: PokeIdle** junta tudo em **uma única janela**: cada conta rod
 | **Layout inteligente** | 2×2 com 4 contas, principal em destaque com 3, lado a lado com 2. Também há "lado a lado" e "empilhado". |
 | **Zoom automático** | O jogo se ajusta sozinho ao tamanho de cada card, com a HUD inteira visível. Dá para ajustar à mão por conta. |
 | **Onde caçar?** 🏆 | Um clique no troféu (ou em **Onde caçar** na barra) e o launcher simula o **seu** pokémon em campo contra cada hunt liberada, com as fórmulas de combate do próprio jogo: top 10 por XP/h, abates/h e risco. O ritmo de cada hunt é **medido de verdade** na sua conta depois de 10 min caçando nela. Não roda nada em segundo plano: o cálculo só acontece quando você abre o painel. |
+| **Gold → Gemas** 💱 | Abriu o RMT em qualquer conta? Um clique em **Gold → Gemas** mostra qual item compensa comprar com moedas para vender por Gemas: preço de compra, preço de venda (anúncio atual e média paga em 7 dias), quanto você recebe já sem a taxa de 15% do jogo e quantas Gemas rende cada 1 milhão de moedas — com as unidades vendidas na semana, para não comprar o que ninguém compra. |
 | **Caça shiny** ✨ | A melhor hunt para capturar um shiny com o seu pokémon e a chance de conseguir em 1, 7 e 30 dias, com a Beast Ball e com a melhor bola que se compra com ouro — e o tempo médio com Capture Boost e Shiny Lure. Pelas regras do jogo: o shiny é sorteado em cada bola (uma por corpo), então vale matar rápido e caçar espécies de 1º estágio; na Outland o shiny não rola. |
 | **Outland & renda** 💎 | Quanto cada conta tira por dia em **Bronze Boss Tokens** e **fragmentos** (Chave, Shiny Stone, Bicicleta) na Outland mais rápida para o seu pokémon, com o seu tier e bônus de loot — em Gemas (já sem a taxa do Mercado), em USDT e em dias até o saque mínimo. Os preços vêm do **Mercado da Comunidade**: abriu o mercado em qualquer conta, o launcher guarda o menor anúncio. Avisa quando você já libera um tier melhor. |
 | **Farm que não para** 🩺 | O farm roda no servidor enquanto a conexão de cada conta estiver viva. O launcher mantém essa conexão de pé com o launcher minimizado ou coberto, **vigia a conexão** (90 s sem resposta do servidor → reconecta; se não voltar → recarrega a conta), **reconecta tudo na volta do sono/hibernação**, destrava XP parado por 15 min e faz uma atualização preventiva a cada 6 h. Conta aberta em outro lugar nunca é tomada de volta sozinha. |
@@ -81,6 +82,15 @@ O **Launcher Alt: PokeIdle** junta tudo em **uma única janela**: cada conta rod
 O launcher nasceu de uma ideia simples — *"e se as 4 contas coubessem numa janela só?"* — e foi lapidado versão a versão, testado de verdade no farm, até chegar à 1.0. Cada etapa:
 
 <details open>
+<summary><b>💱 1.4 — Gold → Gemas e a Outland nova</b> · jogo v1.443</summary>
+
+<br>
+
+- **Gold → Gemas:** com o RMT aberto, o launcher calcula qual item comprar com moedas para revender por Gemas, já com a taxa do jogo e a liquidez da semana.
+- **Outland nova:** 40 tiers (×1 a ×20), Boss Token 5× mais raro, Osso de Sacrifício e taxa fixa de 15% na venda de item por Gemas — a renda da Outland acompanha tudo.
+</details>
+
+<details>
 <summary><b>✨ 1.3 — Caça shiny</b> · a melhor hunt e a chance por tempo</summary>
 
 <br>
@@ -273,7 +283,7 @@ Só estes elementos, a cada 2 segundos ([`src/preload/game-preload.js`](src/prel
 | o horário da última mensagem do servidor e se a conexão está aberta (nunca o conteúdo) | Vigiar a conexão: é ela que mantém o farm |
 | visibilidade do aviso "conta aberta em outro lugar" (`#sessao-tomada`) | Nunca tomar a conta de volta sozinho |
 | a prancheta de sessão do próprio jogo (`sessao-hunt:<nick>` no armazenamento local: abates, tempo, drops) | Medir o ritmo real (abates/h) e os drops de cada hunt |
-| os preços "A partir de" do **Mercado da Comunidade**, só enquanto ele está aberto na tela | Calcular a renda da Outland |
+| as mensagens `market` do RMT (Mercado da Comunidade) que o servidor manda quando você abre a vitrine: o menor anúncio em moedas e em Gemas de cada item e a média paga em 7 dias (só **escuta**) | O "Gold → Gemas" e os preços da renda da Outland |
 | as mensagens `welcome` e `estado` que o servidor manda para a página (só **escuta**, nunca envia nem altera): seu nível, hunt atual, tier da Outland, bônus e os stats dos seus pokémons, mais a tabela de hunts, tipos e chances de drop | Calcular onde caçar — fica só na memória da própria conta |
 
 Esses dados vão apenas da página para a interface do launcher, na sua máquina.
@@ -390,10 +400,17 @@ flowchart LR
 
 ### Outland & renda
 
-- Drops por abate na Outland = chance publicada pelo jogo × multiplicador do tier (×1 a ×8, pelo nível do treinador) × (1 + bônus de loot). Hoje: Bronze Boss Token 0,05% e cada fragmento 0,0005% por abate, no tier 1.
-- Renda/dia = abates/h × 24 × chance × preço (o menor anúncio do Mercado da Comunidade), já sem a taxa do Mercado (13% até 500 Gemas, 10% até 5.000, 7,5% acima). Em USDT pelo valor de saque do jogo (1 Gema = 0,009 USDT).
+- Drops por abate na Outland = chance publicada pelo jogo × multiplicador do tier (40 tiers, ×1 a ×20, pelo nível do treinador), como no analisador do próprio jogo. Hoje: Bronze Boss Token 0,01% e cada fragmento e o Osso de Sacrifício 0,0004% por abate, no tier 1.
+- Renda/dia = abates/h × 24 × chance × preço (o menor entre o anúncio atual e a média de 7 dias no RMT), já sem a taxa de 15% da venda de item por Gemas. Em USDT pelo valor de saque do jogo (1 Gema = 0,009 USDT).
 - Os fragmentos são raríssimos: o grosso da renda costuma vir dos Boss Tokens, e o painel mostra quantos dias leva para cair um fragmento. É estimativa, não renda garantida — o painel também mostra o que caiu de verdade em cada hunt.
 - **Para render mais:** a Outland mais rápida para o seu pokémon (o painel ordena por abates/h), o tier mais alto que o seu nível libera (troque no Mapa) e todas as contas farmando.
+
+### Gold → Gemas (RMT)
+
+- Ao abrir a vitrine do RMT, o jogo recebe do servidor, por item, o menor anúncio em moedas e em Gemas e a média paga nos últimos 7 dias (com as unidades vendidas). O launcher só escuta essa mensagem.
+- **Compra** = menor anúncio em moedas (só a 1ª unidade tem esse preço garantido). **Venda** = o menor entre o anúncio atual em Gemas e a média de 7 dias. **Recebe** = venda menos a taxa do jogo (`taxa-mercado.mjs`: 15% para item, sobre o total do anúncio, arredondada para cima — por unidade, contada num lote de 100).
+- **Rende** = Gemas recebidas ÷ moedas pagas × 1.000.000. Itens sem nenhuma venda por Gemas na semana vão para o fim.
+- Cada categoria do RMT chega num pedido: abra "Todas" (ou passe pelas categorias) para comparar tudo.
 
 ### Caça shiny
 

@@ -59,8 +59,23 @@ webFrame.executeJavaScript(`(() => {
         // Caça shiny: a chance por arremesso, a régua de captura, as bolas e quem tem forma shiny (só o dex).
         chanceShiny: w.chanceShiny, captura: w.captura, shinyDex: Object.keys(w.shinyLooks || {}),
         catalogoBolas: (w.catalogoBolas || []).map((b) => ({ id: b.id, nome: b.nome, catchRate: b.catchRate, compravel: b.compravel, priceGold: b.priceGold })),
+        shinyStoneFragId: w.shinyStone && w.shinyStone.fragmentoId,
+        // RMT: o catálogo de itens que se vendem no Mercado da Comunidade (id, nome, categoria).
+        mercadoCatalogo: ((w.mercado && w.mercado.catalogo) || []).map((i) => ({ id: i.id, nome: i.nome, categoria: i.categoria })),
       };
       if (w.estado) aplicarEstado(Object.assign({}, w.estado, { cheio: true }));
+    }
+    // RMT aberto: o servidor manda, por item, o menor anúncio em moedas e em Gemas (resumo) e a média
+    // paga nos últimos 7 dias com as unidades vendidas (medias). Junta o que chegar (cada categoria
+    // vem num pedido) e marca a hora, para o launcher saber que há preços novos.
+    fonte.mercado = { resumo: {}, medias: {}, em: 0 };
+    function aoMercado(m) {
+      const merc = fonte.mercado;
+      if (m.aba === 'itens' && m.resumo) Object.assign(merc.resumo, m.resumo);
+      if ((m.aba === 'itens' || m.aba === 'medias') && m.medias) Object.assign(merc.medias, m.medias);
+      else if (m.aba !== 'itens') return;
+      merc.em = Date.now();
+      if (document.documentElement) document.documentElement.dataset.lMercado = String(merc.em);
     }
     const Original = window.WebSocket;
     let atual = null;
@@ -79,6 +94,7 @@ webFrame.executeJavaScript(`(() => {
             try {
               if (cab.indexOf('"t":"welcome"') >= 0) aoWelcome(JSON.parse(ev.data));
               else if (cab.indexOf('"t":"estado"') >= 0) { const m = JSON.parse(ev.data); if (m.estado) aplicarEstado(m.estado); }
+              else if (cab.indexOf('"t":"market"') >= 0) aoMercado(JSON.parse(ev.data));
             } catch (err) {}
           });
           ws.addEventListener('close', () => { if (ws === atual && h()) h().dataset.lwsOpen = '0'; });
@@ -233,37 +249,9 @@ function lerSessao() {
     const s = JSON.parse(localStorage.getItem('sessao-hunt:' + nick) || 'null');
     if (!s) return null;
     return { abates: s.abates | 0, ms: s.ms | 0, xpTreinador: s.xpTreinador || 0, gold: s.gold || 0,
-      bossTokens: s.bossTokens | 0, fragChave: s.fragChave | 0, fragShiny: s.fragShiny | 0, fragBicicleta: s.fragBicicleta | 0 };
+      bossTokens: s.bossTokens | 0, fragChave: s.fragChave | 0, fragShiny: s.fragShiny | 0, fragBicicleta: s.fragBicicleta | 0,
+      ossoSacrificio: s.ossoSacrificio | 0 };
   } catch { return null; }
-}
-
-// Preços do Mercado da Comunidade: lidos SÓ quando você o abre (aba Fragmentos ou Boss Tokens).
-// Pega o menor anúncio ("A partir de") em gold e em Gemas de cada item que a Outland solta.
-const ITENS_MERCADO = {
-  'Bronze Boss Token': 'bossToken',
-  'Fragmento de Chave': 'fragChave', 'Key Fragment': 'fragChave', 'Fragmento de Llave': 'fragChave',
-  'Fragmento de Shiny Stone': 'fragShiny', 'Shiny Stone Fragment': 'fragShiny',
-  'Fragmento de Bicicleta': 'fragBicicleta', 'Bicycle Fragment': 'fragBicicleta', 'Fragmento de bicicleta': 'fragBicicleta',
-};
-const porTexto = (t) => document.evaluate(`//body//*[normalize-space(text())=${JSON.stringify(t)}]`, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
-let tickPrecos = 0;
-function lerPrecos() {
-  const titulo = porTexto('MERCADO DA COMUNIDADE') || porTexto('Mercado da Comunidade') || porTexto('COMMUNITY MARKET');
-  if (!titulo || titulo.offsetParent === null) return null;
-  const precos = {};
-  for (const [nome, id] of Object.entries(ITENS_MERCADO)) {
-    if (precos[id]) continue;
-    const el = porTexto(nome);
-    if (!el || el.offsetParent === null) continue;
-    let linha = el;
-    for (let i = 0; i < 6 && linha && !/partir|from|desde/i.test(linha.innerText); i++) linha = linha.parentElement;
-    if (!linha) continue;
-    const depois = linha.innerText.split(/A partir de:?|From:?|Desde:?/i).slice(1).map((s) => (s.match(/[\d.,]+/) || [''])[0].replace(/[.,]/g, ''));
-    const nums = depois.filter(Boolean).map(Number);
-    if (nums.length >= 2) precos[id] = { gold: nums[0], gemas: nums[nums.length - 1] };
-    else if (nums.length === 1) precos[id] = { gemas: nums[0] };
-  }
-  return Object.keys(precos).length ? precos : null;
 }
 
 // ---------- Estado para o launcher ----------
@@ -296,7 +284,7 @@ function snapshot() {
     tomada: !!(document.getElementById('sessao-tomada') && document.getElementById('sessao-tomada').offsetParent !== null), // conta aberta em outro lugar
     hunt: document.documentElement.dataset.lHunt || null,
     sessao: loggedIn ? lerSessao() : null,
-    precos: loggedIn && ++tickPrecos % 5 === 0 ? lerPrecos() : null, // a cada 10 s, e só com o Mercado aberto
+    mercadoEm: +document.documentElement.dataset.lMercado || null, // hora dos últimos preços do RMT que o jogo recebeu
   };
 }
 
